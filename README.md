@@ -1,1 +1,1 @@
-# CS172
+# CS172 - Information Retrieval

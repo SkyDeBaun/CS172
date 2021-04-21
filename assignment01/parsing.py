@@ -40,7 +40,7 @@ def add_token(token, index = termIndex): #add token to (reverse) index of tokens
                 return key
 
 
-#return token id-------------------------------------------------------
+#get token id-------------------------------------------------------
 def get_token_id(token, index = termIndex):
     if token in index:
         return index[token]
@@ -50,8 +50,21 @@ def get_token_id(token, index = termIndex):
         
 #add docuement to (reverse) index of documents-------------------------
 def add_document(doc_name, index = docIndex):
-    pass
+    if doc_name not in index:
+        next_key = len(index)
+        index.__setitem__(doc_name, next_key)
+        return next_key
+    else:
+        for doc, key in index.items():
+            if doc_name == doc:
+                return key
 
+#get document id-------------------------------------------------------
+def get_doc_id(doc, index = docIndex):
+    if doc in index:
+        return index[doc]
+    else:
+        return -1
 
 
 '''

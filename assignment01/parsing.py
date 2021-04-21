@@ -10,6 +10,7 @@ doc_regex = re.compile("<DOC>.*?</DOC>", re.DOTALL)
 docno_regex = re.compile("<DOCNO>.*?</DOCNO>")
 text_regex = re.compile("<TEXT>.*?</TEXT>", re.DOTALL)
 
+token_regex = "\w+(\.?\-?\w+)*" #allows periods and dashes within token
 
 #my indices (dictionaries)---------------------------------------------------------
 docIndex = {} #dictionary for document index

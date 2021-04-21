@@ -16,17 +16,36 @@ token_regex = "\w+(\.?\-?\w+)*" #allows periods and dashes within token
 docIndex = {} #dictionary for document index
 termIndex = {} #dictionary of tokens
 
-
+stopWordSet = set()
 
 
 
 #FUNCTIONS-------------------------------------------------------------------------
 #----------------------------------------------------------------------------------
 
+#create set of stop words------------------------------------------- STOPWORDS: SET
+def create_stopword_set(stopword_file):
+    try:
+        print("Opening: \t" + stopword_file + " for set creation")
+        sleep(.5)
+        with open(stopword_file, 'r') as readfile:
+            text = readfile.read()
+            stopwords = nltk.word_tokenize(text)
+            for word in stopwords:
+                stopWordSet.add(word.lower())
+        print("Done: \t\tstopword set created!\n")
+        sleep(.5)
 
-#add token------------------------------------------------------------
-def add_token(token, index = termIndex): #add token to (reverse) index of tokens and return token's index # (ID)
+    except Exception as e :
+        print("Sorry an error occured reading from the stop word file: " )
+        print(e, end="\n\n")   
 
+
+
+#add token------------------------------------------------------------ TOKENS: DICTIONARY
+#add token to (reverse) index of tokens and return token's index # (ID)
+
+def add_token(token, index = termIndex): 
     #if not in index, add it----------
     if token not in index:
         next_key = len(index)
@@ -48,12 +67,10 @@ def get_token_id(token, index = termIndex):
         return -1 #warning flag
 
         
-#add docuement to (reverse) index of documents-------------------------
-def add_document(doc_name, index = docIndex):
-    if doc_name not in index:
-        next_key = len(index)
-        index.__setitem__(doc_name, next_key)
-        return next_key
+#add docuement to (reverse) index of documents------------------------- DOCUMENTS: DICTIONARY
+def add_document(doc_id, doc_name, index = docIndex):
+    if doc_id not in index:
+        index.__setitem__(doc_name, doc_id)
     else:
         for doc, key in index.items():
             if doc_name == doc:
@@ -67,12 +84,22 @@ def get_doc_id(doc, index = docIndex):
         return -1
 
 
+
+
+#--------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------- MAIN
+#--------------------------------------------------------------------------------------------------------------
+
+
 '''
 with zipfile.ZipFile("ap89_collection_small.zip", 'r') as zip_ref:
     zip_ref.extractall()
 '''
 
 
+#create stopword list--------------------------
+
+create_stopword_set("stopwords.txt")
 
 
 # Retrieve the names of all files to be indexed in folder ./ap89_collection_small of the current directory
@@ -124,3 +151,7 @@ print(termIndex)
 
 
 print("Token ID: " + str(get_token_id("are")))
+
+
+sleep(1)
+print(stopWordSet)

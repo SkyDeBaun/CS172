@@ -22,22 +22,34 @@ termIndex = {} #dictionary of tokens
 #FUNCTIONS-------------------------------------------------------------------------
 #----------------------------------------------------------------------------------
 
-#add token: add token to (reverse) index of tokens and return token's index #
-def add_token(termIndex, token):
+
+#add token------------------------------------------------------------
+def add_token(token, index = termIndex): #add token to (reverse) index of tokens and return token's index # (ID)
 
     #if not in index, add it----------
-    if token not in termIndex:
-        next_key = len(termIndex)
-        termIndex.__setitem__(token, next_key)
+    if token not in index:
+        next_key = len(index)
+        index.__setitem__(token, next_key)
         return next_key
 
     #else just get the key------------
     else:
-        for term, key in termIndex.items():
+        for term, key in index.items():
             if token == term:
                 return key
-        
 
+
+#return token id-------------------------------------------------------
+def get_token_id(token, index = termIndex):
+    if token in index:
+        return index[token]
+    else:
+        return -1 #warning flag
+
+        
+#add docuement to (reverse) index of documents-------------------------
+def add_document(doc_name, index = docIndex):
+    pass
 
 
 
@@ -88,9 +100,13 @@ print("SHOW ME:")
 mylist = ["hello", "world", "how", "are", "yoooooooo", "hello", "world"]
 
 for i in mylist:
-    mykey = add_token(termIndex, i)
+    mykey = add_token(i)
     print(mykey)
 
 
 sleep(1)    
 print(termIndex)
+
+
+
+print("Token ID: " + str(get_token_id("are")))

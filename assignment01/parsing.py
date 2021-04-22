@@ -5,6 +5,8 @@ import zipfile
 import nltk
 from time import sleep
 
+import traceback
+
 # Regular expressions to extract data from the corpus
 doc_regex = re.compile("<DOC>.*?</DOC>", re.DOTALL)
 docno_regex = re.compile("<DOCNO>.*?</DOCNO>")
@@ -36,9 +38,11 @@ def create_stopword_set(stopword_file):
         print("Done: \t\tstopword set created!\n")
         sleep(.5)
 
-    except Exception as e :
+    except Exception:
         print("Sorry an error occured reading from the stop word file: " )
-        print(e, end="\n\n")   
+        traceback.print_exc() 
+        print()  
+
 
 
 
@@ -60,9 +64,10 @@ def add_token(token, index = termIndex):
                 if token == term:
                     return key
 
-    except Exception as e :
+    except Exception:
         print("Sorry an error occured adding token: " + str(token) ) 
-        print(e, end="\n\n")  
+        traceback.print_exc() 
+        print()   
 
 
 #get token id-------------------------------------------------------
@@ -73,9 +78,10 @@ def get_token_id(token, index = termIndex):
         else:
             return -1 #warning flag
 
-    except Exception as e :
+    except Exception:
         print("Sorry an error occured retrieving key for token: " + token )
-        print(e, end="\n\n")   
+        traceback.print_exc() 
+        print()    
 
         
 #add docuement to (reverse) index of documents------------------------- DOCUMENTS: DICTIONARY
@@ -88,9 +94,10 @@ def add_document(doc_id, doc_name, index = docIndex):
                 if doc_name == doc:
                     return key
 
-    except Exception as e :
+    except Exception:
         print("Sorry an error occured adding document: " + doc_id )
-        print(e, end="\n\n")   
+        traceback.print_exc() 
+        print()     
 
 #get document id-------------------------------------------------------
 def get_doc_id(doc, index = docIndex):
@@ -100,9 +107,10 @@ def get_doc_id(doc, index = docIndex):
         else:
             return -1
 
-    except Exception as e :
+    except Exception:
         print("Sorry an error occured retrieving document key for: " + doc )
-        print(e, end="\n\n") 
+        traceback.print_exc() 
+        print()  
 
 
 

@@ -46,42 +46,63 @@ def create_stopword_set(stopword_file):
 #add token to (reverse) index of tokens and return token's index # (ID)
 
 def add_token(token, index = termIndex): 
-    #if not in index, add it----------
-    if token not in index:
-        next_key = len(index)
-        index.__setitem__(token, next_key)
-        return next_key
+    try:
 
-    #else just get the key------------
-    else:
-        for term, key in index.items():
-            if token == term:
-                return key
+        #if not in index, add it----------
+        if token not in index:
+            next_key = len(index)
+            index.__setitem__(token, next_key)
+            return next_key
+
+        #else just get the key------------
+        else:
+            for term, key in index.items():
+                if token == term:
+                    return key
+
+    except Exception as e :
+        print("Sorry an error occured adding token: " + str(token) ) 
+        print(e, end="\n\n")  
 
 
 #get token id-------------------------------------------------------
 def get_token_id(token, index = termIndex):
-    if token in index:
-        return index[token]
-    else:
-        return -1 #warning flag
+    try:
+        if token in index:
+            return index[token]
+        else:
+            return -1 #warning flag
+
+    except Exception as e :
+        print("Sorry an error occured retrieving key for token: " + token )
+        print(e, end="\n\n")   
 
         
 #add docuement to (reverse) index of documents------------------------- DOCUMENTS: DICTIONARY
 def add_document(doc_id, doc_name, index = docIndex):
-    if doc_id not in index:
-        index.__setitem__(doc_name, doc_id)
-    else:
-        for doc, key in index.items():
-            if doc_name == doc:
-                return key
+    try:
+        if doc_id not in index:
+            index.__setitem__(doc_name, doc_id)
+        else:
+            for doc, key in index.items():
+                if doc_name == doc:
+                    return key
+
+    except Exception as e :
+        print("Sorry an error occured adding document: " + doc_id )
+        print(e, end="\n\n")   
 
 #get document id-------------------------------------------------------
 def get_doc_id(doc, index = docIndex):
-    if doc in index:
-        return index[doc]
-    else:
-        return -1
+    try:
+        if doc in index:
+            return index[doc]
+        else:
+            return -1
+
+    except Exception as e :
+        print("Sorry an error occured retrieving document key for: " + doc )
+        print(e, end="\n\n") 
 
 
 

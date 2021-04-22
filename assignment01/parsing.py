@@ -49,13 +49,13 @@ def create_stopword_set(stopword_file):
 #add token------------------------------------------------------------ TOKENS: DICTIONARY
 #add token to (reverse) index of tokens and return token's index # (ID)
 
-def add_token(token, index = termIndex): 
+def add_token(token, index=termIndex): 
     try:
 
         #if not in index, add it----------
         if token not in index:
             next_key = len(index)
-            index.__setitem__(token, next_key)
+            index.__setitem__(next_key, token)
             return next_key
 
         #else just get the key------------
@@ -71,7 +71,7 @@ def add_token(token, index = termIndex):
 
 
 #get token id-------------------------------------------------------
-def get_token_id(token, index = termIndex):
+def get_token_id(token, index=termIndex):
     try:
         if token in index:
             return index[token]
@@ -85,7 +85,26 @@ def get_token_id(token, index = termIndex):
 
         
 #add docuement to (reverse) index of documents------------------------- DOCUMENTS: DICTIONARY
-def add_document(doc_id, doc_name, index = docIndex):
+def add_document(document, index=docIndex):
+    try:
+        if document not in index:
+            next_key = len(index)
+            index.__setitem__(next_key, document)
+            return next_key
+        else:
+            for doc, key in index.items():
+                if document == doc:
+                    return key
+
+    except Exception:
+        print("Sorry an error occured adding document: " + document )
+        traceback.print_exc() 
+        print()  
+
+
+
+'''
+def add_document(doc_id, doc_name, index=docIndex):
     try:
         if doc_id not in index:
             index.__setitem__(doc_name, doc_id)
@@ -97,10 +116,11 @@ def add_document(doc_id, doc_name, index = docIndex):
     except Exception:
         print("Sorry an error occured adding document: " + doc_id )
         traceback.print_exc() 
-        print()     
+        print()   
+'''  
 
 #get document id-------------------------------------------------------
-def get_doc_id(doc, index = docIndex):
+def get_doc_id(doc, index=docIndex):
     try:
         if doc in index:
             return index[doc]
@@ -129,8 +149,7 @@ if __name__ == '__main__':
     '''
 
 
-    #create stopword list--------------------------
-
+    #create stopword list----------------------------------------------------- CREATE STOPWORD SET
     create_stopword_set("stopwords.txt")
 
 
@@ -138,21 +157,19 @@ if __name__ == '__main__':
     for dir_path, dir_names, file_names in os.walk("ap89_collection_small"):
         allfiles = [os.path.join(dir_path, filename).replace("\\", "/") for filename in file_names if (filename != "readme" and filename != ".DS_Store")]
         
-        
-    for idx, file in enumerate(allfiles): #adding index to loop using enumerate function (to provide index for the doc dictionary)
+    #iterate through all files----------------------------------------------
+    for idx, file in enumerate(allfiles): #adding index to loop using enumerate function (to provide index for the doc dictionary) ???????? (I use another way now...)
         with open(file, 'r', encoding='ISO-8859-1') as f:
             filedata = f.read()
             result = re.findall(doc_regex, filedata)  # Match the <DOC> tags and fetch documents
-            
-            
-
+                       
             for document in result[0:]:
+                
                 # Retrieve contents of DOCNO tag
                 docno = re.findall(docno_regex, document)[0].replace("<DOCNO>", "").replace("</DOCNO>", "").strip()
                 
-                #create index of docno to doc path/name
-                #print(str(idx) + ".) docno: " + docno)
-                docIndex.__setitem__(docno, file) #document index -> key: docno, value: document path/name
+                #add document to doc index----------------------------------- INDEX DOC(filename)  
+                doc_index_key = add_document(file) #add doc and get its key back
 
 
                 # Retrieve contents of TEXT tag
@@ -169,6 +186,7 @@ if __name__ == '__main__':
     sleep(2)
 
 
+#test me------------------------------------------------------------------
     print("SHOW ME:")
     mylist = ["hello", "world", "how", "are", "yoooooooo", "hello", "world"]
 
@@ -186,4 +204,4 @@ if __name__ == '__main__':
 
 
     sleep(1)
-    print(stopWordSet)
+    print(termIndex)

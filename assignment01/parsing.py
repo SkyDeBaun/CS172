@@ -15,7 +15,8 @@ text_regex = re.compile("<TEXT>.*?</TEXT>", re.DOTALL)
 token_regex = "\w+(\.?\-?\w+)*" #allows periods and dashes within token
 
 #my indices (dictionaries)---------------------------------------------------------
-docIndex = {} #dictionary for document index
+docNoIndex = {} #dictionary for document index
+docIndex = {} #dictionary mapping Doc No to file name
 termIndex = {} #dictionary of tokens
 
 stopWordSet = set()
@@ -84,8 +85,8 @@ def get_token_id(token, index=termIndex):
         print()    
 
         
-#add docuement to (reverse) index of documents------------------------- DOCUMENTS: DICTIONARY
-def add_document(doc_id, index=docIndex):
+#add document number to (reverse) index of documents------------------------- DOCUMENT NUMBER: DICTIONARY
+def add_document_number(doc_id, index=docNoIndex):
     try:
         if document not in index:
             next_key = len(index)
@@ -103,7 +104,7 @@ def add_document(doc_id, index=docIndex):
 
 
 #get document id-------------------------------------------------------
-def get_doc_id(doc, index=docIndex):
+def get_doc_id(doc, index=docNoIndex):
     try:
         if doc in index:
             return index[doc]
@@ -116,7 +117,30 @@ def get_doc_id(doc, index=docIndex):
         print()  
 
 
+#add document to (index of documents)--------------------------------- DOCUMENTS: DICTIONARY
+def add_document(document, doc_id, index=docIndex):
+    try:
+        if document not in index:
+            index.__setitem__(doc_id, document) #mind the order here: its a reverse index!
+        
+    except Exception:
+        print("Sorry an error occured adding document to document index: " + document )
+        traceback.print_exc() 
+        print()  
 
+
+#get document(file name) from doc index--------------------------------
+def get_document_file(doc_no_key, index=docIndex):
+    try:
+        if doc_no_key in index:
+            return index[doc_no_key]
+        else: 
+            return -1
+
+    except Exception:
+        print("Sorry an error occured retrieving filename for doc number key: " + doc_no_key )
+        traceback.print_exc() 
+        print()  
 
 #--------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------------------------- MAIN
@@ -142,7 +166,7 @@ if __name__ == '__main__':
         
     #FOR EACH FILE IN COLLECTION--------------------------------------------------------------------
     #-----------------------------------------------------------------------------------------------
-    for file in allfiles: #adding index to loop using enumerate function (to provide index for the doc dictionary) ???????? (I use another way now...)
+    for file in allfiles: 
         with open(file, 'r', encoding='ISO-8859-1') as f:
             filedata = f.read()
             result = re.findall(doc_regex, filedata)  # Match the <DOC> tags and fetch documents
@@ -154,8 +178,11 @@ if __name__ == '__main__':
                 # Retrieve contents of DOCNO tag
                 docno = re.findall(docno_regex, document)[0].replace("<DOCNO>", "").replace("</DOCNO>", "").strip()
                 
-                #add doc ID to doc index----------------------------------- INDEX DOC(filename)  
-                doc_index_key = add_document(docno) #add doc and get its key back
+                #add doc ID to doc index----------------------------------- INDEX DOC NUMBER  
+                doc_index_key = add_document_number(docno) #add doc and get its key back
+
+                #lets index the filename also------------------------------ INDEX DOCUMENT FILE (using Doc Number as key)
+                add_document(file, docno)
 
 
                 # Retrieve contents of TEXT tag----------------------------- TOKENIZE
@@ -190,5 +217,11 @@ if __name__ == '__main__':
 
 
     sleep(1)
-    print(docIndex)
+    print(docNoIndex)
     print ("Doc No: " + str(get_doc_id('AP890109-0349')))
+
+
+
+    print("\nFiles: ")
+    print(docIndex)
+    print("document for DocNO: AP890109-0349 -->:" + get_document_file('AP890109-0349'))

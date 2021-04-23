@@ -3,6 +3,10 @@ import os
 import zipfile
 
 import nltk
+from nltk.tokenize import RegexpTokenizer
+from nltk.stem import PorterStemmer
+ps = PorterStemmer()
+
 from time import sleep
 
 import traceback
@@ -163,15 +167,16 @@ if __name__ == '__main__':
     # Retrieve the names of all files to be indexed in folder ./ap89_collection_small of the current directory
     for dir_path, dir_names, file_names in os.walk("ap89_collection_small"):
         allfiles = [os.path.join(dir_path, filename).replace("\\", "/") for filename in file_names if (filename != "readme" and filename != ".DS_Store")]
-        
-    #FOR EACH FILE IN COLLECTION--------------------------------------------------------------------
+
+
+    #FOR EACH FILE IN COLLECTION-------------------------------------------------------------------- FOR EACH FILE
     #-----------------------------------------------------------------------------------------------
     for file in allfiles: 
         with open(file, 'r', encoding='ISO-8859-1') as f:
             filedata = f.read()
             result = re.findall(doc_regex, filedata)  # Match the <DOC> tags and fetch documents
                        
-            #FOR EACH DOCUMENT IN FILE--------------------------------------------------------------
+            #FOR EACH DOCUMENT IN FILE-------------------------------------------------------------- FOR EACH DOC NO
             #---------------------------------------------------------------------------------------
             for document in result[0:]:
                 
@@ -179,7 +184,7 @@ if __name__ == '__main__':
                 docno = re.findall(docno_regex, document)[0].replace("<DOCNO>", "").replace("</DOCNO>", "").strip()
                 
                 #add doc ID to doc index----------------------------------- INDEX DOC NUMBER  
-                doc_index_key = add_document_number(docno) #add doc and get its key back
+                doc_index_key = add_document_number(docno) #add doc no
 
                 #lets index the filename also------------------------------ INDEX DOCUMENT FILE (using Doc Number as key)
                 add_document(file, docno)
@@ -189,7 +194,33 @@ if __name__ == '__main__':
                 text = "".join(re.findall(text_regex, document))\
                         .replace("<TEXT>", "").replace("</TEXT>", "")\
                         .replace("\n", " ")
+
+                text = re.sub('[()!@#$%^&*:;,.\']', '', text.lower()) #lower case and remove punctuation chars (leave hyphens)
+               
+                tk = RegexpTokenizer('\s+', gaps = True)
+                tokens = tk.tokenize(text)
                 
+
+                position_counter = 0
+
+                #process my list of tokens---------------------------------- FOR EACH TOKEN
+                for token in tokens:
+
+                    #stemming using porter --------------------------------- STEMMING (Porter)
+                    token_porter = ps.stem(token)
+
+                    #add to term index-------------------------------------- ADD STEM TO TERM INDEX
+                    if token_porter not in stopWordSet: 
+                        position_counter += 1 #position counter of token in current doc
+
+                        token_id = add_token(token) #add stemmed token to dict and get its key#
+                        
+                        #create tuple of term informatin-------------------- TERM TUPLE CREATION
+                        term_info = (token_id, doc_index_key, position_counter)
+                        print(term_info) #debug
+                        sleep(.15) #debug
+                       
+
                 
 
                 # step 1 - lower-case words, remove punctuation, remove stop-words, etc. 
@@ -200,6 +231,8 @@ if __name__ == '__main__':
 
 
 #test me------------------------------------------------------------------
+
+'''
     print("SHOW ME:")
     mylist = ["hello", "world", "how", "are", "yoooooooo", "hello", "world"]
 
@@ -225,3 +258,5 @@ if __name__ == '__main__':
     print("\nFiles: ")
     print(docIndex)
     print("document for DocNO: AP890109-0349 -->:" + get_document_file('AP890109-0349'))
+
+'''

@@ -166,13 +166,32 @@ def add_term_info(token_key, tpl_info, index=termInfoIndex):
 
 #use input to present relevant information-----------------------------
 
+
+def count_docs(term, index=termInfoIndex):
+    if get_token_id(term) != -1:
+        info = termInfoIndex[term]    
+        return len(info)
+    else:
+        return 0
+
+
+
+
 #get term info---------------------------------------------------------
 def get_term_info(term):
     stem = ps.stem(term)
     term_id = get_token_id(stem)
 
-    print("Listing for term: " + term)
-    print("Term ID: " + str(term_id))
+    print("\nListing for term: " + term)
+    if term_id != -1:
+        print("Term ID: " + str(term_id))
+    else:
+        print("Sorry, " + term + " was not found in the corpus")
+    print("Number of documents containing term: " + str(count_docs(stem)))
+
+    
+
+
 
 
 #-------------------------------------------------------------------------------------------------------------- 
@@ -182,17 +201,15 @@ if __name__ == '__main__':
 
     #get user input from command line---------------------------------------------------------------- INPUT
     parser = argparse.ArgumentParser()
-
     parser.add_argument("-d", "--doc", dest = "document", help="Enter Document Name (i.e. DocNo)" )
     parser.add_argument("-t", "--term", dest = "term", help="Enter Term")
     parser.add_argument("-c", "--collection", dest = "collection", default="ap89_collection_small", help="Document Collection")
     
     args = parser.parse_args()
-
-
     collection = args.collection
-    print(collection)
 
+    print("\nUsing collection: " + collection + "\n")
+    sleep(1)
 
    
 #unzip utility------------------------------------------------------------------------------------- UNZIP
@@ -268,17 +285,24 @@ if __name__ == '__main__':
                 # step 2 - create tokens 
                 # step 3 - build index
 
+            
+
    
     print("Creation of Posting List Complete!")
-    sleep(2)
+    sleep(1)
+
+    #print(termIndex) #debug
+
+    if args.term or args.document:
+        print("Now processing user input commands...")
 
 
     
 
 
     if args.document and args.term :
-        print("both args present")
-    if args.term and not args.document:
-        print("Term arg present")
+        pass
+    if args.term and not args.document:        
+        get_term_info(args.term)
     if args.document and not args.term:
-        print("Doc arg present")
+        pass

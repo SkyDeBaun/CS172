@@ -25,6 +25,8 @@ docNoIndex = {} #dictionary for document index
 docIndex = {} #dictionary mapping Doc No to file name
 termIndex = {} #dictionary of tokens
 
+termInfoIndex = {}
+
 stopWordSet = set()
 
 
@@ -148,6 +150,16 @@ def get_document_file(doc_no_key, index=docIndex):
         traceback.print_exc() 
         print()  
 
+#add to term info index------------------------------------------------
+def add_term_info(token_key, tpl_info, index=termInfoIndex):
+    if token_key in termInfoIndex:
+        termInfoIndex[token_key].append(tpl_info)
+    else:
+        termInfoIndex.__setitem__(token_key, [tpl_info]) #add new entry
+
+
+
+
 #--------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------------------------- MAIN
 #--------------------------------------------------------------------------------------------------------------
@@ -218,12 +230,14 @@ if __name__ == '__main__':
                         token_id = add_token(token) #add stemmed token to dict and get its key#
                         
                         #create tuple of term informatin-------------------- TERM TUPLE CREATION
-                        term_info = (token_id, doc_index_key, position_counter)
-                        print(term_info) #debug
-                        sleep(.15) #debug
+                        tpl_term_info = (token_id, doc_index_key, position_counter)  
+
+                        #add tuple of info to term_info index--------------- TERM INFO INDEX
+                        add_term_info(token_porter, tpl_term_info)
                        
 
-                
+                    #print(termInfoIndex)
+                    #sleep(1)
 
                 # step 1 - lower-case words, remove punctuation, remove stop-words, etc. 
                 # step 2 - create tokens 

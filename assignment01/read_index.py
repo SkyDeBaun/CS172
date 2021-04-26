@@ -185,7 +185,7 @@ def count_doc_terms(doc_key, index=docInfoIndex):
    
         return tpl[0], tpl[1] #return: total terms and unique terms
     else:
-        return 0
+        return 0, 0
 
 
 
@@ -222,15 +222,26 @@ def get_doc_info(doc_no):
     print("\nListing for document: " + doc_no.lower())
 
     if doc_key != -1:
-
-        total, unique = count_doc_terms(doc_key)
-
+        total, unique = count_doc_terms(doc_key) 
         print("DOCID: " + str(doc_key))
         print("Distinct terms: " + str(unique))
         print("Total terms: " + str(total))
 
     else:
         print("Sorry, " + str(doc_no) + " not found in collection!")
+
+#get information for doc + term----------------------------------------
+def get_both_info(doc_no, term):
+    print("Inverted list for term: " + term)
+    print("In document: " + doc_no)
+
+    stem = ps.stem(term)
+    term_id = get_token_id(stem)
+    print("TERMID: " + str(term_id))
+
+    doc_key = get_doc_id(doc_no)
+    if doc_key != -1:
+        print("DOCID: " + str(doc_key))
 
 
 
@@ -243,12 +254,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--doc", dest = "document", help="Enter Document Name (i.e. DocNo)" )
     parser.add_argument("-t", "--term", dest = "term", help="Enter Term")
-    parser.add_argument("-c", "--collection", dest = "collection", default="ap89_collection_small", help="Document Collection")
+    parser.add_argument("-c", "--collection", dest = "collection", default="ap89_collection_small", help="Document Collection Directory")
     
     args = parser.parse_args()
     collection = args.collection
 
-    print("\nUsing collection: " + collection + "\n")
+    print("\nCollection: \t" + collection)
     sleep(1)
 
    
@@ -347,17 +358,16 @@ if __name__ == '__main__':
     print("Creation of Posting List Complete!")
     sleep(1)
 
-    #print(termIndex) #debug
 
     if args.term or args.document:
-        print("Now processing user input commands...")
+        print("\nProcessing user input commands...")
 
 
     
-
+    #execute output based on combination of input flags--------------------------------------------
 
     if args.document and args.term :
-        pass
+        get_both_info(args.document, args.term)
     if args.term and not args.document:        
         get_term_info(args.term)
     if args.document and not args.term:

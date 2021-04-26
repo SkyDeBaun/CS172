@@ -1,18 +1,26 @@
-# This file should contain code to receive either a document-id or word or both and output the required metrics. See the assignment description for more detail.
+#CS172 - Intro to Information Retrieval - UCR, Spring 2021
+#Sky DeBaun
 
+#imports----------------------------------------------------------------------- IMPORTS
+import argparse
 import re
-import os
 import zipfile
 
+#nltk-------------------------------------------------------------
 import nltk
 from nltk.tokenize import RegexpTokenizer
 from nltk.stem import PorterStemmer
 ps = PorterStemmer()
 
+#os and other------------------------------------------------------
+import os
 from time import sleep
 
+#user friendly exception tracebacks--------------------------------
 import traceback
 
+
+#Vars and setup------------------------------------------------------------------- SETUP
 # Regular expressions to extract data from the corpus
 doc_regex = re.compile("<DOC>.*?</DOC>", re.DOTALL)
 docno_regex = re.compile("<DOCNO>.*?</DOCNO>")
@@ -24,14 +32,12 @@ token_regex = "\w+(\.?\-?\w+)*" #allows periods and dashes within token
 docNoIndex = {} #dictionary for document index
 docIndex = {} #dictionary mapping Doc No to file name
 termIndex = {} #dictionary of tokens
-
-termInfoIndex = {}
-
-stopWordSet = set()
+termInfoIndex = {} #dictionary of term to term info
+stopWordSet = set() #create empty set for stopwords
 
 
 
-#FUNCTIONS-------------------------------------------------------------------------
+#FUNCTIONS------------------------------------------------------------------------- FUNCTIONS
 #----------------------------------------------------------------------------------
 
 #create set of stop words------------------------------------------- STOPWORDS: SET
@@ -158,28 +164,50 @@ def add_term_info(token_key, tpl_info, index=termInfoIndex):
         termInfoIndex.__setitem__(token_key, [tpl_info]) #add new entry
 
 
+#use input to present relevant information-----------------------------
+
+#get term info---------------------------------------------------------
+def get_term_info(term):
+    stem = ps.stem(term)
+    term_id = get_token_id(stem)
+
+    print("Listing for term: " + term)
+    print("Term ID: " + str(term_id))
 
 
-#--------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------- 
 #-------------------------------------------------------------------------------------------------------------- MAIN
-#--------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------- 
 if __name__ == '__main__':
 
+    #get user input from command line---------------------------------------------------------------- INPUT
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("-d", "--doc", dest = "document", help="Enter Document Name (i.e. DocNo)" )
+    parser.add_argument("-t", "--term", dest = "term", help="Enter Term")
+    parser.add_argument("-c", "--collection", dest = "collection", default="ap89_collection_small", help="Document Collection")
+    
+    args = parser.parse_args()
 
 
+    collection = args.collection
+    print(collection)
 
+
+   
+#unzip utility------------------------------------------------------------------------------------- UNZIP
     '''
     with zipfile.ZipFile("ap89_collection_small.zip", 'r') as zip_ref:
         zip_ref.extractall()
     '''
 
 
-    #create stopword list----------------------------------------------------- CREATE STOPWORD SET
+    #create stopword list--------------------------------------------------------------------------- CREATE STOPWORD SET
     create_stopword_set("stopwords.txt")
 
 
     # Retrieve the names of all files to be indexed in folder ./ap89_collection_small of the current directory
-    for dir_path, dir_names, file_names in os.walk("ap89_collection_small"):
+    for dir_path, dir_names, file_names in os.walk(collection):
         allfiles = [os.path.join(dir_path, filename).replace("\\", "/") for filename in file_names if (filename != "readme" and filename != ".DS_Store")]
 
 
@@ -236,44 +264,21 @@ if __name__ == '__main__':
                         add_term_info(token_porter, tpl_term_info)
                        
 
-                    #print(termInfoIndex)
-                    #sleep(1)
-
                 # step 1 - lower-case words, remove punctuation, remove stop-words, etc. 
                 # step 2 - create tokens 
                 # step 3 - build index
 
+   
+    print("Creation of Posting List Complete!")
     sleep(2)
+
+
     
 
 
-#test me------------------------------------------------------------------
-
-'''
-    print("SHOW ME:")
-    mylist = ["hello", "world", "how", "are", "yoooooooo", "hello", "world"]
-
-    for i in mylist:
-        mykey = add_token(i)
-        print(mykey)
-
-
-    sleep(1)    
-    print(termIndex)
-
-
-
-    print("Token ID: " + str(get_token_id('are')))
-
-
-    sleep(1)
-    print(docNoIndex)
-    print ("Doc No: " + str(get_doc_id('AP890109-0349')))
-
-
-
-    print("\nFiles: ")
-    print(docIndex)
-    print("document for DocNO: AP890109-0349 -->:" + get_document_file('AP890109-0349'))
-
-'''
+    if args.document and args.term :
+        print("both args present")
+    if args.term and not args.document:
+        print("Term arg present")
+    if args.document and not args.term:
+        print("Doc arg present")

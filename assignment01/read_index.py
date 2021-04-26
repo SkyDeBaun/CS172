@@ -29,11 +29,15 @@ text_regex = re.compile("<TEXT>.*?</TEXT>", re.DOTALL)
 token_regex = "\w+(\.?\-?\w+)*" #allows periods and dashes within token
 
 #my indices (dictionaries)---------------------------------------------------------
-docNoIndex = {} #dictionary for document index
+stopWordSet = set() #create empty set for stopwords
+uniqueWordSet = set() #used to count distinct terms
+
+docNoIndex = {} #dictionary for document reverse index (i.e. document name to document ID)
 docIndex = {} #dictionary mapping Doc No to file name
 termIndex = {} #dictionary of tokens
+
 termInfoIndex = {} #dictionary of term to term info
-stopWordSet = set() #create empty set for stopwords
+docInfoIndex = {} #dictionary of doc key to doc info
 
 
 
@@ -102,7 +106,9 @@ def get_token_id(token, index=termIndex):
 #add document number to (reverse) index of documents------------------------- DOCUMENT NUMBER: DICTIONARY
 def add_document_number(doc_id, index=docNoIndex):
     try:
-        if document not in index:
+        doc_id = doc_id.lower() #lets make this uniform...
+
+        if doc_id not in index:
             next_key = len(index)
             index.__setitem__(doc_id, next_key) #mind the order here: its a reverse index!
             return next_key
@@ -156,7 +162,7 @@ def get_document_file(doc_no_key, index=docIndex):
         traceback.print_exc() 
         print()  
 
-#add to term info index------------------------------------------------
+#add to term info dictionary-------------------------------------------
 def add_term_info(token_key, tpl_info, index=termInfoIndex):
     if token_key in termInfoIndex:
         termInfoIndex[token_key].append(tpl_info)
@@ -164,12 +170,30 @@ def add_term_info(token_key, tpl_info, index=termInfoIndex):
         termInfoIndex.__setitem__(token_key, [tpl_info]) #add new entry
 
 
-#use input to present relevant information-----------------------------
+#add to doc info dictionary--------------------------------------------???? should this be consolidated into something else ???
+def add_doc_info(doc_key, tpl_info, index=docInfoIndex):
+    if doc_key in docInfoIndex:
+        docInfoIndex[doc_key].append(tpl_info)
+    else:
+        docInfoIndex.__setitem__(doc_key, [tpl_info])
+
+#count total terms used in doc-----------------------------------------
+def count_doc_terms(doc_key, index=docInfoIndex):
+    if doc_key != -1:
+        info = index[doc_key] #list of tuples.. kind of redundant as its always a list of size 1
+        tpl = info[0] #get tuple
+   
+        return tpl[0], tpl[1] #return: total terms and unique terms
+    else:
+        return 0
 
 
+
+
+#count docs(using a specific term)--------------------------------------
 def count_docs(term, index=termInfoIndex):
     if get_token_id(term) != -1:
-        info = termInfoIndex[term]    
+        info = index[term]    
         return len(info)
     else:
         return 0
@@ -177,7 +201,7 @@ def count_docs(term, index=termInfoIndex):
 
 
 
-#get term info---------------------------------------------------------
+#get term information--------------------------------------------------
 def get_term_info(term):
     stem = ps.stem(term)
     term_id = get_token_id(stem)
@@ -187,10 +211,26 @@ def get_term_info(term):
         print("Term ID: " + str(term_id))
     else:
         print("Sorry, " + term + " was not found in the corpus")
+
     print("Number of documents containing term: " + str(count_docs(stem)))
 
     
+#get document information----------------------------------------------
+def get_doc_info(doc_no):
+    doc_key = get_doc_id(doc_no)
 
+    print("\nListing for document: " + doc_no.lower())
+
+    if doc_key != -1:
+
+        total, unique = count_doc_terms(doc_key)
+
+        print("DOCID: " + str(doc_key))
+        print("Distinct terms: " + str(unique))
+        print("Total terms: " + str(total))
+
+    else:
+        print("Sorry, " + str(doc_no) + " not found in collection!")
 
 
 
@@ -246,7 +286,7 @@ if __name__ == '__main__':
                 doc_index_key = add_document_number(docno) #add doc no
 
                 #lets index the filename also------------------------------ INDEX DOCUMENT FILE (using Doc Number as key)
-                add_document(file, docno)
+                add_document(file, docno) #--->>> not used!!!
 
 
                 # Retrieve contents of TEXT tag----------------------------- TOKENIZE
@@ -254,32 +294,48 @@ if __name__ == '__main__':
                         .replace("<TEXT>", "").replace("</TEXT>", "")\
                         .replace("\n", " ")
 
-                text = re.sub('[()!@#$%^&*:;,.\']', '', text.lower()) #lower case and remove punctuation chars (leave hyphens)
+                text = re.sub('[()!@#$%^&*:;,.`\']', '', text.lower()) #lower case and remove punctuation chars (leave hyphens!)
                
                 tk = RegexpTokenizer('\s+', gaps = True)
                 tokens = tk.tokenize(text)
                 
 
                 position_counter = 0
+                token_counter = 0
 
                 #process my list of tokens---------------------------------- FOR EACH TOKEN
                 for token in tokens:
 
-                    #stemming using porter --------------------------------- STEMMING (Porter)
-                    token_porter = ps.stem(token)
+                    
 
                     #add to term index-------------------------------------- ADD STEM TO TERM INDEX
-                    if token_porter not in stopWordSet: 
+                    if token not in stopWordSet: 
+
+                        #add tokens/terms to set for count of distinct------
+                        uniqueWordSet.add(token) 
+
+                        #stemming using porter ----------------------------- STEMMING (Porter)
+                        token_porter = ps.stem(token)
+
                         position_counter += 1 #position counter of token in current doc
+                        token_counter += 1 #count total tokens/terms in doc
 
                         token_id = add_token(token) #add stemmed token to dict and get its key#
                         
-                        #create tuple of term informatin-------------------- TERM TUPLE CREATION
-                        tpl_term_info = (token_id, doc_index_key, position_counter)  
+                        #create tuple of term information------------------- TERM TUPLE CREATION
+                        tpl_term_info = (token_id, doc_index_key, position_counter)  #token key, doc key, term position
 
                         #add tuple of info to term_info index--------------- TERM INFO INDEX
                         add_term_info(token_porter, tpl_term_info)
                        
+
+                #store count of terms in doc???-----------------------------
+                add_doc_info(doc_index_key, (token_counter, len(uniqueWordSet)))
+
+                #print ("uniques: " + str (len(uniqueWordSet)))
+                uniqueWordSet.clear()
+                #sleep(2)
+
 
                 # step 1 - lower-case words, remove punctuation, remove stop-words, etc. 
                 # step 2 - create tokens 
@@ -305,4 +361,4 @@ if __name__ == '__main__':
     if args.term and not args.document:        
         get_term_info(args.term)
     if args.document and not args.term:
-        pass
+        get_doc_info(args.document)

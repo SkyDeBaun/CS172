@@ -283,7 +283,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--doc", dest = "document", help="Enter Document Name (i.e. DocNo)" )
     parser.add_argument("-t", "--term", dest = "term", help="Enter Term")
-    parser.add_argument("-c", "--collection", dest = "collection", default="ap89_collection_min", help="Document Collection Directory")
+    parser.add_argument("-c", "--collection", dest = "collection", default="ap89_collection_small", help="Document Collection Directory")
     
     args = parser.parse_args()
     collection = args.collection

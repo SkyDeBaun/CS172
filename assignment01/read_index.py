@@ -21,19 +21,15 @@ import traceback
 
 
 #Vars and setup------------------------------------------------------------------- SETUP
-# Regular expressions to extract data from the corpus
 doc_regex = re.compile("<DOC>.*?</DOC>", re.DOTALL)
 docno_regex = re.compile("<DOCNO>.*?</DOCNO>")
 text_regex = re.compile("<TEXT>.*?</TEXT>", re.DOTALL)
-
-token_regex = "\w+(\.?\-?\w+)*" #allows periods and dashes within token
 
 #my indices (dictionaries)---------------------------------------------------------
 stopWordSet = set() #create empty set for stopwords
 uniqueWordSet = set() #used to count distinct terms
 
 docNoIndex = {} #dictionary for document reverse index (i.e. document name to document ID) ex: {ap890101-0001': 0}
-#docIndex = {} #dictionary mapping Doc No to file name --> NOT USED
 termIndex = {} #dictionary of tokens
 termCounter = {} #store count of term usage across entire corpus/collection
 termInfoIndex = {} #dictionary of term to term info
@@ -117,7 +113,7 @@ def get_token_id(token, index=termIndex):
         print()    
 
         
-#add document number to (reverse) index of documents------------------------- DOCUMENT NUMBER: DICTIONARY
+#add document number to (reverse) index of documents-------------------- DOCUMENT NUMBER: DICTIONARY
 def add_document_number(doc_id, index=docNoIndex):
     try:
         doc_id = doc_id.lower() #lets make this uniform...
@@ -150,33 +146,6 @@ def get_doc_id(doc, index=docNoIndex):
         traceback.print_exc() 
         print()  
 
-'''
-#add document to (index of documents)--------------------------------- DOCUMENTS: DICTIONARY --> NOT USED
-def add_document(document, doc_id, index=docIndex):
-    try:
-        if document not in index:
-            index.__setitem__(doc_id, document) #mind the order here: its a reverse index!
-        
-    except Exception:
-        print("Sorry an error occured adding document to document index: " + document )
-        traceback.print_exc() 
-        print()  
-
-
-#get document(file name) from doc index-------------------------------- --> NOT USED
-def get_document_file(doc_no_key, index=docIndex):
-    try:
-        if doc_no_key in index:
-            return index[doc_no_key]
-        else: 
-            return -1
-
-    except Exception:
-        print("Sorry an error occured retrieving filename for doc number key: " + doc_no_key )
-        traceback.print_exc() 
-        print()  
-'''
-
 
 #add to term info dictionary-------------------------------------------
 def add_term_info(token_key, tpl_info, index=termInfoIndex):
@@ -186,7 +155,7 @@ def add_term_info(token_key, tpl_info, index=termInfoIndex):
         termInfoIndex.__setitem__(token_key, [tpl_info]) #add new entry
 
 
-#get infor for doc + term ---------------------------------------------- TESTME
+#get info for doc + term ---------------------------------------------- 
 def get_doc_term_info(term, term_id, doc_id, index=termInfoIndex):
 
     counter = 0 #count term frequency in doc
@@ -201,12 +170,13 @@ def get_doc_term_info(term, term_id, doc_id, index=termInfoIndex):
     return counter, positions
 
 
-#add to doc info dictionary--------------------------------------------???? should this be consolidated into something else ???
+#add to doc info dictionary--------------------------------------------
 def add_doc_info(doc_key, tpl_info, index=docInfoIndex):
     if doc_key in docInfoIndex:
         docInfoIndex[doc_key].append(tpl_info)
     else:
         docInfoIndex.__setitem__(doc_key, [tpl_info])
+
 
 #count total terms used in doc-----------------------------------------
 def count_doc_terms(doc_key, index=docInfoIndex):
@@ -250,7 +220,6 @@ def get_term_info(term):
 
     print("Number of documents containing term: " + str(count_docs(stem)))
     print("Term frequency in corpus: " + str(get_term_count(term_id)) )
-
 
 
 #get document information----------------------------------------------
@@ -315,14 +284,7 @@ if __name__ == '__main__':
 
     print("\nCollection: \t" + collection)
     sleep(1)
-
    
-#unzip utility------------------------------------------------------------------------------------- UNZIP
-    '''
-    with zipfile.ZipFile("ap89_collection_small.zip", 'r') as zip_ref:
-        zip_ref.extractall()
-    '''
-
 
     #create stopword list--------------------------------------------------------------------------- CREATE STOPWORD SET
     create_stopword_set("stopwords.txt")

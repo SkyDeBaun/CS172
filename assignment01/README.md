@@ -9,21 +9,22 @@
    - The TEXT is tokenized, lower-cased, and stemmed (using the Porter method)
    - Tokens that are not part of the (provided) stop-word list are added to an inverted-index 
 
-#### Indices 
+### Indices:
    - Term Index (termIndex): dictionary that maps terms/tokens with a unique id number
    - Document Index (docNoIndex): dictionary that maps document names(DOCNO) to a unique id number
    - Term Info (termInfoIndex): dictionary that maps terms/tokens to a list of tuples (containing Term ID, Document ID, and Position)  
 
-#### Other Data Structures
+#### Other Data Structures:
    - Term Counter (termCounter): dictionary used to count total occurences of each term
    - Stop Words (stopWordSet): set of stop words
    - Unique Words (uniqueWordSet): set used to count distinct terms across the corpus of documents
 
+Note: all data structures for this assignment are stored in memory and not on disc! 
 
-#### Language Used
+#### Language Used:
 The assignment is implemented using the Python 3 language
 
-#### Instructions
+### Instructions:
 The project can be executed without any parameters (flags), however this will only create the various indices and NOT provide any output.
 To use the project several flags (and their associated parameters) are needed, as follows:
    - --term (or -t) "term"  
@@ -40,5 +41,5 @@ Examples:
    - python read_index.py -t china -d ap890101-0001 -c ap89_collection_min
 
 
-#### Extra Credit
+### Extra Credit:
 Tokens are stemmed using the Porter method (via the NLTK PorterStemmer)

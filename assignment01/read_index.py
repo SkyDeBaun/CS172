@@ -318,10 +318,10 @@ if __name__ == '__main__':
 
    
 #unzip utility------------------------------------------------------------------------------------- UNZIP
-    '''
+   
     with zipfile.ZipFile("ap89_collection_small.zip", 'r') as zip_ref:
         zip_ref.extractall()
-    '''
+
 
 
     #create stopword list--------------------------------------------------------------------------- CREATE STOPWORD SET

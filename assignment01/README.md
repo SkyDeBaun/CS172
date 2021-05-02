@@ -27,17 +27,17 @@ The assignment is implemented using the Python language
 The project can be executed without any parameters (flags), however this will only create the various indices and NOT provide any output.
 To use the project several flags (and their associated parameters) are needed, as follows:
    - --term (or -t) "term"  
-     - Example: python read_index.py -t asparagus
    - --doc (or -d) "document name" 
-     - Example: python read_index.py -d ap890101-0001
    - -c "collection directory"
-     - Example: python read_index.py -c ap89_collection_minimal
      - Note: By default the project uses the provided ap89_collection_small corpus
 
+Typical implementation REQUIRES either the -t or the -d flags for useful output (but of course both can be used together), and each combination will provide a unique set of results
 
-
-
-###### Language used, how to run your code, if you attempted the extra credit (stemming), etc.  
+Examples: 
+   - python read_index.py -t china
+   - python read_index.py -d ap890101-0001
+   - python read_index.py -t china -d ap890101-0001
+   - python read_index.py -t china -d ap890101-0001 -c ap89_collection_min
 
 
 #### Extra Credit

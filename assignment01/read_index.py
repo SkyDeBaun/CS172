@@ -32,9 +32,10 @@ token_regex = "\w+(\.?\-?\w+)*" #allows periods and dashes within token
 stopWordSet = set() #create empty set for stopwords
 uniqueWordSet = set() #used to count distinct terms
 
-docNoIndex = {} #dictionary for document reverse index (i.e. document name to document ID)
+docNoIndex = {} #dictionary for document reverse index (i.e. document name to document ID) ex: {ap890101-0001': 0}
 docIndex = {} #dictionary mapping Doc No to file name
 termIndex = {} #dictionary of tokens
+termCounter = {} #store count of term usage across entire corpus/collection
 
 termInfoIndex = {} #dictionary of term to term info
 docInfoIndex = {} #dictionary of doc key to doc info
@@ -65,22 +66,41 @@ def create_stopword_set(stopword_file):
 
 
 
+#update term count (across the whole collection/corpus)----------------
+def get_term_count(token_id, index=termCounter):
+
+    if token_id in termCounter:
+        counter = termCounter[token_id]
+    else:
+        counter = 0
+
+    return counter
+
+
+
+
+
 #add token------------------------------------------------------------ TOKENS: DICTIONARY
 #add token to (reverse) index of tokens and return token's index # (ID)
-
-def add_token(token, index=termIndex): 
+def add_token(token, index=termIndex, counter=termCounter): 
     try:
 
         #if not in index, add it----------
         if token not in index:
             next_key = len(index)
             index.__setitem__(token, next_key) #mind the order here: its a reverse index!
+            termCounter.__setitem__(next_key, 1) #first count
             return next_key
 
-        #else just get the key------------
-        else:
+        #else get key (and update count)---
+        else: 
             for term, key in index.items():
                 if token == term:
+                    #print("Grabbing current count for: " + token) #debug
+                    count = termCounter[key]
+                    count += 1 #update the count
+                    termCounter.update({key:count}) 
+                    #print("My Count: " + str(count))
                     return key
 
     except Exception:
@@ -193,8 +213,12 @@ def count_doc_terms(doc_key, index=docInfoIndex):
 #count docs(using a specific term)--------------------------------------
 def count_docs(term, index=termInfoIndex):
     if get_token_id(term) != -1:
-        info = index[term]    
-        return len(info)
+        uniqueDocSet = set()
+        info = index[term]
+        for item in info:
+            uniqueDocSet.add(item[1])
+
+        return len(uniqueDocSet)
     else:
         return 0
 
@@ -213,8 +237,10 @@ def get_term_info(term):
         print("Sorry, " + term + " was not found in the corpus")
 
     print("Number of documents containing term: " + str(count_docs(stem)))
+    print("Term frequency in corpus: " + str(get_term_count(term_id)) )
 
-    
+
+
 #get document information----------------------------------------------
 def get_doc_info(doc_no):
     doc_key = get_doc_id(doc_no)
@@ -250,11 +276,11 @@ def get_both_info(doc_no, term):
 #-------------------------------------------------------------------------------------------------------------- 
 if __name__ == '__main__':
 
-    #get user input from command line---------------------------------------------------------------- INPUT
+    #get user input from command line---------------------------------------------------------------- INPUT -->MIND THE DEFAULTS HERE USED FOR TESTING 
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--doc", dest = "document", help="Enter Document Name (i.e. DocNo)" )
-    parser.add_argument("-t", "--term", dest = "term", help="Enter Term")
-    parser.add_argument("-c", "--collection", dest = "collection", default="ap89_collection_small", help="Document Collection Directory")
+    parser.add_argument("-t", "--term", default="china", dest = "term", help="Enter Term")
+    parser.add_argument("-c", "--collection", dest = "collection", default="ap89_collection_min", help="Document Collection Directory")
     
     args = parser.parse_args()
     collection = args.collection
@@ -325,16 +351,17 @@ if __name__ == '__main__':
                         #add tokens/terms to set for count of distinct------
                         uniqueWordSet.add(token) 
 
-                        #stemming using porter ----------------------------- STEMMING (Porter)
-                        token_porter = ps.stem(token)
+                        #stemming using porter ----------------------------- STEMMING (Porter) -> consider another stemmer
+                        token_porter = ps.stem(token) #stemmed using porter tokenizer
 
                         position_counter += 1 #position counter of token in current doc
-                        token_counter += 1 #count total tokens/terms in doc
+                        token_counter += 1 #count total tokens/terms in current doc
 
                         token_id = add_token(token) #add stemmed token to dict and get its key#
+                      
                         
                         #create tuple of term information------------------- TERM TUPLE CREATION
-                        tpl_term_info = (token_id, doc_index_key, position_counter)  #token key, doc key, term position
+                        tpl_term_info = (token_id, doc_index_key, position_counter)  #token key, doc key, term position, term count in corpus
 
                         #add tuple of info to term_info index--------------- TERM INFO INDEX
                         add_term_info(token_porter, tpl_term_info)

@@ -21,7 +21,7 @@
 
 
 #### Language Used
-The assignment is implemented using the Python language
+The assignment is implemented using the Python 3 language
 
 #### Instructions
 The project can be executed without any parameters (flags), however this will only create the various indices and NOT provide any output.

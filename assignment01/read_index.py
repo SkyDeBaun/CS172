@@ -33,10 +33,9 @@ stopWordSet = set() #create empty set for stopwords
 uniqueWordSet = set() #used to count distinct terms
 
 docNoIndex = {} #dictionary for document reverse index (i.e. document name to document ID) ex: {ap890101-0001': 0}
-docIndex = {} #dictionary mapping Doc No to file name
+#docIndex = {} #dictionary mapping Doc No to file name --> NOT USED
 termIndex = {} #dictionary of tokens
 termCounter = {} #store count of term usage across entire corpus/collection
-
 termInfoIndex = {} #dictionary of term to term info
 docInfoIndex = {} #dictionary of doc key to doc info
 
@@ -64,8 +63,6 @@ def create_stopword_set(stopword_file):
         print()  
 
 
-
-
 #update term count (across the whole collection/corpus)----------------
 def get_term_count(token_id, index=termCounter):
 
@@ -75,9 +72,6 @@ def get_term_count(token_id, index=termCounter):
         counter = 0
 
     return counter
-
-
-
 
 
 #add token------------------------------------------------------------ TOKENS: DICTIONARY
@@ -156,8 +150,8 @@ def get_doc_id(doc, index=docNoIndex):
         traceback.print_exc() 
         print()  
 
-
-#add document to (index of documents)--------------------------------- DOCUMENTS: DICTIONARY
+'''
+#add document to (index of documents)--------------------------------- DOCUMENTS: DICTIONARY --> NOT USED
 def add_document(document, doc_id, index=docIndex):
     try:
         if document not in index:
@@ -169,7 +163,7 @@ def add_document(document, doc_id, index=docIndex):
         print()  
 
 
-#get document(file name) from doc index--------------------------------
+#get document(file name) from doc index-------------------------------- --> NOT USED
 def get_document_file(doc_no_key, index=docIndex):
     try:
         if doc_no_key in index:
@@ -181,6 +175,8 @@ def get_document_file(doc_no_key, index=docIndex):
         print("Sorry an error occured retrieving filename for doc number key: " + doc_no_key )
         traceback.print_exc() 
         print()  
+'''
+
 
 #add to term info dictionary-------------------------------------------
 def add_term_info(token_key, tpl_info, index=termInfoIndex):
@@ -188,7 +184,6 @@ def add_term_info(token_key, tpl_info, index=termInfoIndex):
         termInfoIndex[token_key].append(tpl_info)
     else:
         termInfoIndex.__setitem__(token_key, [tpl_info]) #add new entry
-
 
 
 #get infor for doc + term ---------------------------------------------- TESTME
@@ -204,7 +199,6 @@ def get_doc_term_info(term, term_id, doc_id, index=termInfoIndex):
             positions.append(item[2]) #lets append positions to list of positions
     
     return counter, positions
-
 
 
 #add to doc info dictionary--------------------------------------------???? should this be consolidated into something else ???
@@ -225,9 +219,7 @@ def count_doc_terms(doc_key, index=docInfoIndex):
         return 0, 0
 
 
-
-
-#count docs(using a specific term)--------------------------------------
+#count docs(that use a specific term)-------------------------------------
 def count_docs(term, index=termInfoIndex):
     
     if get_token_id(term) != -1:
@@ -276,7 +268,8 @@ def get_doc_info(doc_no):
     else:
         print("Sorry, " + str(doc_no) + " not found in collection!")
 
-#get information for doc + term----------------------------------------
+
+#get information for doc + term (ie -t and -d flags set)---------------
 def get_both_info(doc_no, term):
     print("Inverted list for term: " + term)
     print("In document: " + doc_no)
@@ -296,11 +289,11 @@ def get_both_info(doc_no, term):
     else:
         print("Sorry, " + doc_no + " not found in the collection")
 
-
     if doc_key > -1 and term_id > -1:
         count, positions = get_doc_term_info(term, term_id, doc_key)
-        print("Term frequency in document " + str(count))
+        print("Term frequency in document: " + str(count))
         print("Positions: ", end='')
+        
         for pos in positions:
             print(str(pos) + ', ', end='')
 
@@ -358,7 +351,7 @@ if __name__ == '__main__':
                 doc_index_key = add_document_number(docno) #add doc no
 
                 #lets index the filename also------------------------------ INDEX DOCUMENT FILE (using Doc Number as key)
-                add_document(file, docno) #--->>> not used!!!
+                #add_document(file, docno) #--->>> not used!!!
 
 
                 # Retrieve contents of TEXT tag----------------------------- TOKENIZE
@@ -369,16 +362,14 @@ if __name__ == '__main__':
                 text = re.sub('[()!@#$%^&*:;,.`\']', '', text.lower()) #lower case and remove punctuation chars (leave hyphens!)
                
                 tk = RegexpTokenizer('\s+', gaps = True)
-                tokens = tk.tokenize(text)
+                tokens = tk.tokenize(text) 
                 
 
-                position_counter = 0
+                position_counter = 0 #track term position (in current doc)
                 token_counter = 0
 
                 #process my list of tokens---------------------------------- FOR EACH TOKEN
-                for token in tokens:
-
-                    
+                for token in tokens:                    
 
                     #add to term index-------------------------------------- ADD STEM TO TERM INDEX
                     if token not in stopWordSet: 
@@ -391,7 +382,6 @@ if __name__ == '__main__':
 
                         position_counter += 1 #position counter of token in current doc
                         token_counter += 1 #count total tokens/terms in current doc
-
                         token_id = add_token(token) #add stemmed token to dict and get its key#
                       
                         
@@ -402,35 +392,16 @@ if __name__ == '__main__':
                         add_term_info(token_porter, tpl_term_info)
                        
 
-                #store count of terms in doc???-----------------------------
+                #store count of terms in a doc------------------------------
                 add_doc_info(doc_index_key, (token_counter, len(uniqueWordSet)))
-
-                #print ("uniques: " + str (len(uniqueWordSet)))
                 uniqueWordSet.clear()
-                #sleep(2)
 
-
-                # step 1 - lower-case words, remove punctuation, remove stop-words, etc. 
-                # step 2 - create tokens 
-                # step 3 - build index
-
-            
-
-   
-    print("Creation of Posting List Complete!")
-    sleep(1)
-
-
-    if args.term or args.document:
-        print("\nProcessing user input commands...")
-
-
+     
     
     #execute output based on combination of input flags--------------------------------------------
-
     if args.document and args.term :
-        get_both_info(args.document, args.term)
+        get_both_info(args.document.lower(), args.term.lower())
     if args.term and not args.document:        
-        get_term_info(args.term)
+        get_term_info(args.term.lower())
     if args.document and not args.term:
-        get_doc_info(args.document)
+        get_doc_info(args.document.lower())

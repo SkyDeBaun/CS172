@@ -212,17 +212,20 @@ def count_doc_terms(doc_key, index=docInfoIndex):
 
 #count docs(using a specific term)--------------------------------------
 def count_docs(term, index=termInfoIndex):
+    
     if get_token_id(term) != -1:
-        uniqueDocSet = set()
-        info = index[term]
-        for item in info:
-            uniqueDocSet.add(item[1])
+        uniqueDocSet = set() #set used to hold unique Doc id's
+        info = index[term] #info is a list of tuples
 
-        return len(uniqueDocSet)
+        for item in info: #each item is a tuple
+            uniqueDocSet.add(item[1]) #use set to acrue unique doc numbers
+
+        counter = len(uniqueDocSet) #then, just count the size of the set for total count of docs with the term
+    
     else:
-        return 0
+        counter = 0
 
-
+    return counter
 
 
 #get term information--------------------------------------------------

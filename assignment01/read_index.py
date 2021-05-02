@@ -190,6 +190,23 @@ def add_term_info(token_key, tpl_info, index=termInfoIndex):
         termInfoIndex.__setitem__(token_key, [tpl_info]) #add new entry
 
 
+
+#get infor for doc + term ---------------------------------------------- TESTME
+def get_doc_term_info(term, term_id, doc_id, index=termInfoIndex):
+
+    counter = 0 #count term frequency in doc
+    positions = []
+    info = index[term] #info is a list of tuples for term
+
+    for item in info: #item is a tuple 
+        if doc_id == item[1]: #if doc id matches element 1 of tuple
+            counter += 1 #increment counter
+            positions.append(item[2]) #lets append positions to list of positions
+    
+    return counter, positions
+
+
+
 #add to doc info dictionary--------------------------------------------???? should this be consolidated into something else ???
 def add_doc_info(doc_key, tpl_info, index=docInfoIndex):
     if doc_key in docInfoIndex:
@@ -264,13 +281,28 @@ def get_both_info(doc_no, term):
     print("Inverted list for term: " + term)
     print("In document: " + doc_no)
 
-    stem = ps.stem(term)
-    term_id = get_token_id(stem)
-    print("TERMID: " + str(term_id))
+    stem = ps.stem(term) #get the stemmed term token
+    term_id = get_token_id(stem) #get the term id #
+
+    if term_id != -1:
+        print("TERMID: " + str(term_id))
+    else:
+        print(term + " not found in the corpus")
+    
 
     doc_key = get_doc_id(doc_no)
     if doc_key != -1:
         print("DOCID: " + str(doc_key))
+    else:
+        print("Sorry, " + doc_no + " not found in the collection")
+
+
+    if doc_key > -1 and term_id > -1:
+        count, positions = get_doc_term_info(term, term_id, doc_key)
+        print("Term frequency in document " + str(count))
+        print("Positions: ", end='')
+        for pos in positions:
+            print(str(pos) + ', ', end='')
 
 
 
@@ -281,8 +313,8 @@ if __name__ == '__main__':
 
     #get user input from command line---------------------------------------------------------------- INPUT -->MIND THE DEFAULTS HERE USED FOR TESTING 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-d", "--doc", dest = "document", help="Enter Document Name (i.e. DocNo)" )
-    parser.add_argument("-t", "--term", dest = "term", help="Enter Term")
+    parser.add_argument("-d", "--doc", dest = "document", help="Enter Document Name (i.e. DocNo)" , default='')
+    parser.add_argument("-t", "--term", dest = "term", help="Enter Term", default='')
     parser.add_argument("-c", "--collection", dest = "collection", default="ap89_collection_small", help="Document Collection Directory")
     
     args = parser.parse_args()

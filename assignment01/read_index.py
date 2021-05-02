@@ -279,7 +279,7 @@ if __name__ == '__main__':
     #get user input from command line---------------------------------------------------------------- INPUT -->MIND THE DEFAULTS HERE USED FOR TESTING 
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--doc", dest = "document", help="Enter Document Name (i.e. DocNo)" )
-    parser.add_argument("-t", "--term", default="china", dest = "term", help="Enter Term")
+    parser.add_argument("-t", "--term", dest = "term", help="Enter Term")
     parser.add_argument("-c", "--collection", dest = "collection", default="ap89_collection_min", help="Document Collection Directory")
     
     args = parser.parse_args()

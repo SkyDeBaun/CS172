@@ -28,8 +28,8 @@ The project can be executed without any parameters (flags), however this will on
 To use the project several flags (and their associated parameters) are needed, as follows:
    - --term (or -t) "term"  
    - --doc (or -d) "document name" 
-   - -c "collection directory"
-     - Note: By default the project uses the provided ap89_collection_small corpus
+   - --collection (or -c) "collection directory path"
+     - ***Note: By default the project uses the provided ap89_collection_small corpus
 
 Typical implementation REQUIRES either the -t or the -d flags for useful output (but of course both can be used together), and each combination will provide a unique set of results
 

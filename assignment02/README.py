@@ -4,10 +4,8 @@
 
 
 ### This assignment is a simplified Information Retrieval system that builds on Assignment 1
-   - Reads documents from a directory of docments, where each document uses a specialize IR (tagged) format
-   - The documents are parsed and relevant information (DOCNO and TEXT) are extracted
-   - The TEXT is tokenized, lower-cased, and stemmed (using the Porter method)
-   - Tokens that are not part of the (provided) stop-word list are added to an inverted-index 
+   - This assignment uses the Vector Space Model to perform a full retrieval of matching documents from the corpus of documents (ap89_collection_small)
+   - It reads the command line arguments for a text file of queries and a file to save the result to  
 
 ### Indices:
    - Term Index (termIndex): dictionary that maps terms/tokens with a unique id number
@@ -26,7 +24,7 @@ The assignment is implemented using the Python 3 language
 
 ### Instructions:
 
-Examples: 
-   - helo
+Example usage: 
+   - python VSM.py data/query_list.txt results.txt
 
 ### Extra Credit:

@@ -39,27 +39,6 @@ docInfoIndex = {} #dictionary of doc key to doc info
 #FUNCTIONS------------------------------------------------------------------------- FUNCTIONS
 #----------------------------------------------------------------------------------
 
-#create set of stop words------------------------------------------- STOPWORDS: SET
-'''
-def create_stopword_set(stopword_file):
-    try:
-        print("Opening: \t" + stopword_file + " for set creation")
-        sleep(.5)
-        with open(stopword_file, 'r') as readfile:
-            text = readfile.read()
-            stopwords = nltk.word_tokenize(text)
-            for word in stopwords:
-                stopWordSet.add(word.lower())
-        print("Done: \t\tstopword set created!\n")
-        sleep(.5)
-
-    except Exception:
-        print("Sorry an error occured reading from the stop word file: " )
-        traceback.print_exc() 
-        print() 
-''' 
-
-
 #update term count (across the whole collection/corpus)----------------
 def get_term_count(token_id, index=termCounter):
 
@@ -207,73 +186,6 @@ def count_docs(term, index=termInfoIndex):
 
     return counter
 
-'''
-#get term information--------------------------------------------------
-def get_term_info(term):
-    stem = ps.stem(term)
-    term_id = get_token_id(stem)
-
-    print("\nListing for term: " + term)
-    if term_id != -1:
-        print("Term ID: " + str(term_id))
-    else:
-        print("Sorry, " + term + " was not found in the corpus")
-
-    print("Number of documents containing term: " + str(count_docs(stem)))
-    print("Term frequency in corpus: " + str(get_term_count(term_id)) )
-'''
-
-
-'''
-#get document information----------------------------------------------
-def get_doc_info(doc_no):
-    doc_key = get_doc_id(doc_no)
-
-    print("\nListing for document: " + doc_no.lower())
-
-    if doc_key != -1:
-        total, unique = count_doc_terms(doc_key) 
-        print("DOCID: " + str(doc_key))
-        print("Distinct terms: " + str(unique))
-        print("Total terms: " + str(total))
-
-    else:
-        print("Sorry, " + str(doc_no) + " not found in collection!")
-
-'''
-
-
-'''
-#get information for doc + term (ie -t and -d flags set)---------------
-def get_both_info(doc_no, term):
-    print("Inverted list for term: " + term)
-    print("In document: " + doc_no)
-
-    stem = ps.stem(term) #get the stemmed term token
-    term_id = get_token_id(stem) #get the term id #
-
-    if term_id != -1:
-        print("TERMID: " + str(term_id))
-    else:
-        print(term + " not found in the corpus")
-    
-
-    doc_key = get_doc_id(doc_no)
-    if doc_key != -1:
-        print("DOCID: " + str(doc_key))
-    else:
-        print("Sorry, " + doc_no + " not found in the collection")
-
-    if doc_key > -1 and term_id > -1:
-        count, positions = get_doc_term_info(term, term_id, doc_key)
-        print("Term frequency in document: " + str(count))
-        print("Positions: ", end='')
-        
-        for pos in positions:
-            print(str(pos) + ', ', end='')
-
-'''
-
 
 
 
@@ -390,8 +302,7 @@ if __name__ == '__main__':
                 #process my list of tokens---------------------------------- FOR EACH TOKEN
                 for token in tokens:                    
 
-                    #add to term index-------------------------------------- ADD STEM TO TERM INDEX
-                    #if token not in stopWordSet: 
+                    #add to term index-------------------------------------- ADD STEM TO TERM INDEX (stopwords included)
 
                     #add tokens/terms to set for count of distinct------
                     uniqueWordSet.add(token) 
@@ -421,9 +332,3 @@ if __name__ == '__main__':
     if args.document and args.term :
         #get_both_info(args.document.lower(), args.term.lower())
         get_tf(args.term.lower(), args.document.lower())
-    '''
-    if args.term and not args.document:        
-        get_term_info(args.term.lower())
-    if args.document and not args.term:
-        get_doc_info(args.document.lower())
-    '''

@@ -205,7 +205,7 @@ def count_docs(term, index=termInfoIndex):
 
     return counter
 
-
+'''
 #get term information--------------------------------------------------
 def get_term_info(term):
     stem = ps.stem(term)
@@ -219,8 +219,10 @@ def get_term_info(term):
 
     print("Number of documents containing term: " + str(count_docs(stem)))
     print("Term frequency in corpus: " + str(get_term_count(term_id)) )
+'''
 
 
+'''
 #get document information----------------------------------------------
 def get_doc_info(doc_no):
     doc_key = get_doc_id(doc_no)
@@ -236,7 +238,10 @@ def get_doc_info(doc_no):
     else:
         print("Sorry, " + str(doc_no) + " not found in collection!")
 
+'''
 
+
+'''
 #get information for doc + term (ie -t and -d flags set)---------------
 def get_both_info(doc_no, term):
     print("Inverted list for term: " + term)
@@ -264,6 +269,11 @@ def get_both_info(doc_no, term):
         
         for pos in positions:
             print(str(pos) + ', ', end='')
+
+'''
+
+
+
 
 #get term frequency---------------------------------------------------TERM FREQUENCY
 def get_tf(term, doc_no):
@@ -299,11 +309,14 @@ def get_tf(term, doc_no):
         count, positions = get_doc_term_info(term, term_id, doc_key)
         print("Term: " + term)
         print("Term frequency in document: " + str(count))
-        print("Number of documents containing term: " + str(num_docs_with_term))
-        print("Total number of docs in corpus: " + str(num_docs_in_corp))
-
         print("Total Terms in Doc: " + str(total))
         print("Term Frequency: " + str(count/total))
+
+        print("\nNumber of documents containing term: " + str(num_docs_with_term))
+        print("Total number of docs in corpus: " + str(num_docs_in_corp))
+
+        
+        
 
 
     

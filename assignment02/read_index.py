@@ -266,6 +266,39 @@ def get_both_info(doc_no, term):
         for pos in positions:
             print(str(pos) + ', ', end='')
 
+#get term frequency---------------------------------------------------TERM FREQUENCY
+def get_tf(term, doc_no):
+
+    #tokenize term and get its id--------------------
+    stem = ps.stem(term) #get the stemmed term token
+    term_id = get_token_id(stem) #get the term id #
+
+    #get document info (it total terms in doc)-------
+    doc_key = get_doc_id(doc_no)
+    if doc_key != -1:
+        total, unique = count_doc_terms(doc_key) 
+
+    #get term count (for a given document)-----------
+    doc_key = get_doc_id(doc_no)
+
+
+
+    #debugging----------------------------------------    
+    if doc_key != -1:
+        print("DOCID: " + str(doc_key))
+    else:
+        print("Sorry, " + doc_no + " not found in the collection")
+
+    if doc_key > -1 and term_id > -1:
+        count, positions = get_doc_term_info(term, term_id, doc_key)
+        print("Term: " + term)
+        print("Term frequency in document: " + str(count))
+        print("Total Terms in Doc: " + str(total))
+        print("Term Frequency: " + str(count/total))
+
+
+    
+
 
 
 #-------------------------------------------------------------------------------------------------------------- 
@@ -362,7 +395,8 @@ if __name__ == '__main__':
     
     #execute output based on combination of input flags--------------------------------------------
     if args.document and args.term :
-        get_both_info(args.document.lower(), args.term.lower())
+        #get_both_info(args.document.lower(), args.term.lower())
+        get_tf(args.term.lower(), args.document.lower())
     if args.term and not args.document:        
         get_term_info(args.term.lower())
     if args.document and not args.term:

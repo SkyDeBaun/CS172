@@ -40,6 +40,7 @@ docInfoIndex = {} #dictionary of doc key to doc info
 #----------------------------------------------------------------------------------
 
 #create set of stop words------------------------------------------- STOPWORDS: SET
+'''
 def create_stopword_set(stopword_file):
     try:
         print("Opening: \t" + stopword_file + " for set creation")
@@ -55,7 +56,8 @@ def create_stopword_set(stopword_file):
     except Exception:
         print("Sorry an error occured reading from the stop word file: " )
         traceback.print_exc() 
-        print()  
+        print() 
+''' 
 
 
 #update term count (across the whole collection/corpus)----------------
@@ -342,7 +344,7 @@ if __name__ == '__main__':
    
 
     #create stopword list--------------------------------------------------------------------------- CREATE STOPWORD SET
-    create_stopword_set("stopwords.txt")
+    #create_stopword_set("stopwords.txt")
 
 
     # Retrieve the names of all files to be indexed in folder ./ap89_collection_small of the current directory
@@ -389,24 +391,24 @@ if __name__ == '__main__':
                 for token in tokens:                    
 
                     #add to term index-------------------------------------- ADD STEM TO TERM INDEX
-                    if token not in stopWordSet: 
+                    #if token not in stopWordSet: 
 
-                        #add tokens/terms to set for count of distinct------
-                        uniqueWordSet.add(token) 
+                    #add tokens/terms to set for count of distinct------
+                    uniqueWordSet.add(token) 
 
-                        #stemming using porter ----------------------------- STEMMING (Porter) -> consider another stemmer
-                        token_porter = ps.stem(token) #stemmed using porter tokenizer
+                    #stemming using porter ----------------------------- STEMMING (Porter) -> consider another stemmer
+                    token_porter = ps.stem(token) #stemmed using porter tokenizer
 
-                        position_counter += 1 #position counter of token in current doc
-                        token_counter += 1 #count total tokens/terms in current doc
-                        token_id = add_token(token) #add stemmed token to dict and get its key#
-                      
-                        
-                        #create tuple of term information------------------- TERM TUPLE CREATION
-                        tpl_term_info = (token_id, doc_index_key, position_counter)  #token key, doc key, term position, term count in corpus
+                    position_counter += 1 #position counter of token in current doc
+                    token_counter += 1 #count total tokens/terms in current doc
+                    token_id = add_token(token) #add stemmed token to dict and get its key#
+                    
+                    
+                    #create tuple of term information------------------- TERM TUPLE CREATION
+                    tpl_term_info = (token_id, doc_index_key, position_counter)  #token key, doc key, term position, term count in corpus
 
-                        #add tuple of info to term_info index--------------- TERM INFO INDEX
-                        add_term_info(token_porter, tpl_term_info)
+                    #add tuple of info to term_info index--------------- TERM INFO INDEX
+                    add_term_info(token_porter, tpl_term_info)
                        
 
                 #store count of terms in a doc------------------------------

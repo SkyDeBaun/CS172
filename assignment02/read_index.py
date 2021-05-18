@@ -419,7 +419,9 @@ if __name__ == '__main__':
     if args.document and args.term :
         #get_both_info(args.document.lower(), args.term.lower())
         get_tf(args.term.lower(), args.document.lower())
+    '''
     if args.term and not args.document:        
         get_term_info(args.term.lower())
     if args.document and not args.term:
         get_doc_info(args.document.lower())
+    '''

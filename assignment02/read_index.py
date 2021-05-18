@@ -36,7 +36,6 @@ termInfoIndex = {} #dictionary of term to term info
 docInfoIndex = {} #dictionary of doc key to doc info
 
 
-
 #FUNCTIONS------------------------------------------------------------------------- FUNCTIONS
 #----------------------------------------------------------------------------------
 
@@ -282,8 +281,15 @@ def get_tf(term, doc_no):
     doc_key = get_doc_id(doc_no)
 
 
+    num_docs_with_term = count_docs(stem)
+    num_docs_in_corp = len(docNoIndex)
+
+
 
     #debugging----------------------------------------    
+
+
+
     if doc_key != -1:
         print("DOCID: " + str(doc_key))
     else:
@@ -293,6 +299,9 @@ def get_tf(term, doc_no):
         count, positions = get_doc_term_info(term, term_id, doc_key)
         print("Term: " + term)
         print("Term frequency in document: " + str(count))
+        print("Number of documents containing term: " + str(num_docs_with_term))
+        print("Total number of docs in corpus: " + str(num_docs_in_corp))
+
         print("Total Terms in Doc: " + str(total))
         print("Term Frequency: " + str(count/total))
 

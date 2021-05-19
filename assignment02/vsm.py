@@ -266,6 +266,13 @@ def create_data_dir(data_dir):
         os.makedirs(data_dir)
 
 
+#save tokenized and indexed doc to disk-------------------------------SAVE TO DISK
+def write_to_disk(filename, text):
+    with open(data_dir + '/' + filename, 'wb') as save:
+                    pickle.dump(text, save)
+
+
+
 #-------------------------------------------------------------------------------------------------------------- 
 #-------------------------------------------------------------------------------------------------------------- MAIN
 #-------------------------------------------------------------------------------------------------------------- 
@@ -285,11 +292,9 @@ if __name__ == '__main__':
     output_path = args.output_path
     data_dir = args.data_dir
 
-    #clean user input
+    #clean user input and create data directory-----------------------DATA DIRECTORY
     data_dir = data_dir.rstrip("/")
     create_data_dir(data_dir)
-
-
 
 
 
@@ -337,12 +342,13 @@ if __name__ == '__main__':
                 
 
                 position_counter = 0 #track term position (in current doc)
-                token_counter = 0
+                token_counter = 0 #track count of tokens in doc
 
-                doc_text = ''
+                doc_text = '' #stores sting of token id's for indexed doc (is written to disk)
+
 
                 #process my list of tokens---------------------------------- FOR EACH TOKEN
-                for token in tokens:                    
+                for token in tokens:       
 
                     #add to term index-------------------------------------- ADD STEM TO TERM INDEX (stopwords included)
 
@@ -363,29 +369,25 @@ if __name__ == '__main__':
                     #add tuple of info to term_info index--------------- TERM INFO INDEX
                     add_term_info(token_porter, tpl_term_info)
 
-                    #save token to string... experiment**************
-                    doc_text += str(token_id) + ' ' #save doc as string of token id's
+                    #save token to string-------------------------------
+                    doc_text += str(token_id) + ' ' #doc text as string of token id's
                     doc_file = docno + '.sav' #create unique filename for doc (will save to disc)
                        
 
-                #store count of terms in a doc------------------------------
+                #store count of unique terms in a doc------------------------
                 add_doc_info(doc_index_key, (token_counter, len(uniqueWordSet)))
                 uniqueWordSet.clear()
 
-
-                #save processed doc to disk----------------------------------
-                with open(data_dir + '/' + doc_file, 'wb') as save:
-                    pickle.dump(doc_text, save)
-
+                #save processed doc to disk----------------------------------WRITE TO DISK
+                write_to_disk(doc_file, doc_text)               
     
-
-
-    
-
 
     print("Pre-processing: \tComplete")
     print("Corpus indexed: \tWritten to disk at: " + data_dir + "/")
-    sleep(2)
+    sleep(1)
+
+
+    print("Reading Query: \t\t" + query_path)
 
         
     #execute output based on combination of input flags--------------------------------------------    

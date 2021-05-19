@@ -14,16 +14,21 @@ ps = PorterStemmer()
 
 #os and other------------------------------------------------------
 import os
-from time import sleep
+from time import sleep #for debugging and user feedback
 
 #user friendly exception tracebacks--------------------------------
 import traceback
+
+#serialize data structures --> https://realpython.com/courses/pickle-serializing-objects/
+import pickle
 
 
 #Vars and setup------------------------------------------------------------------- SETUP
 doc_regex = re.compile("<DOC>.*?</DOC>", re.DOTALL)
 docno_regex = re.compile("<DOCNO>.*?</DOCNO>")
 text_regex = re.compile("<TEXT>.*?</TEXT>", re.DOTALL)
+
+data_dir = 'data' #path to directory used to save indexed docs
 
 #my indices (dictionaries)---------------------------------------------------------
 stopWordSet = set() #create empty set for stopwords
@@ -34,6 +39,8 @@ termIndex = {} #dictionary of tokens
 termCounter = {} #store count of term usage across entire corpus/collection
 termInfoIndex = {} #dictionary of term to term info
 docInfoIndex = {} #dictionary of doc key to doc info
+
+corpus = {} #experiment
 
 
 #FUNCTIONS------------------------------------------------------------------------- FUNCTIONS
@@ -210,9 +217,7 @@ def get_tf(term, doc_no):
 
 
 
-    #debugging----------------------------------------    
-
-
+    #debugging----------------------------------------   
 
     if doc_key != -1:
         print("DOCID: " + str(doc_key))
@@ -232,6 +237,16 @@ def get_tf(term, doc_no):
         
         
 
+#iterate through collection of docs (uses reverse index)******
+def visit_docs(index=docNoIndex):
+    for key in index.keys():
+        print(key, '->', index[key])
+        
+        #get doc key----------------------
+        doc_key = index[key]
+
+        print(docInfoIndex[doc_key])
+        sleep(3)
 
     
 
@@ -290,7 +305,9 @@ if __name__ == '__main__':
                         .replace("<TEXT>", "").replace("</TEXT>", "")\
                         .replace("\n", " ")
 
-                text = re.sub('[()!@#$%^&*:;,.`\']', '', text.lower()) #lower case and remove punctuation chars (leave hyphens!)
+                text = re.sub('[()!@#$%^&*:;,._`\']', '', text.lower()) #lower case and remove punctuation chars (leave hyphens!)
+
+                
                
                 tk = RegexpTokenizer('\s+', gaps = True)
                 tokens = tk.tokenize(text) 
@@ -298,6 +315,8 @@ if __name__ == '__main__':
 
                 position_counter = 0 #track term position (in current doc)
                 token_counter = 0
+
+                doc_text = ''
 
                 #process my list of tokens---------------------------------- FOR EACH TOKEN
                 for token in tokens:                    
@@ -316,19 +335,33 @@ if __name__ == '__main__':
                     
                     
                     #create tuple of term information------------------- TERM TUPLE CREATION
-                    tpl_term_info = (token_id, doc_index_key, position_counter)  #token key, doc key, term position, term count in corpus
+                    tpl_term_info = (token_id, doc_index_key, position_counter)  #token key, doc key, term position in doc
 
                     #add tuple of info to term_info index--------------- TERM INFO INDEX
                     add_term_info(token_porter, tpl_term_info)
+
+                    #save token to string... experiment**************
+                    doc_text += str(token_id) + ' ' #save doc as string of token id's
+                    doc_file = docno + '.sav' #create unique filename for doc (will save to disc)
                        
 
                 #store count of terms in a doc------------------------------
                 add_doc_info(doc_index_key, (token_counter, len(uniqueWordSet)))
                 uniqueWordSet.clear()
 
-     
+
+                #save processed doc to disk----------------------------------
+                with open(data_dir + '/' + doc_file, 'wb') as save:
+                    pickle.dump(doc_text, save)
+
+    
+
+
+    print("Processing Corpus complete!")
+    sleep(2)
     
     #execute output based on combination of input flags--------------------------------------------
     if args.document and args.term :
         #get_both_info(args.document.lower(), args.term.lower())
-        get_tf(args.term.lower(), args.document.lower())
+        get_tf(args.term.lower(), args.document.lower()) #tmp experimental
+        #visit_docs()

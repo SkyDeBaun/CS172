@@ -250,36 +250,51 @@ def visit_docs(index=docNoIndex):
         sleep(3)
 
     
+#read query doc-------------------------------------------------------READ QUERY DOC
+def read_query_doc(query_path):
+    with open (query_path, 'r') as file:
+        query_list = file.readlines() #unprocesed list of queries
 
+    return query_list
+
+#create directory of indexed docs-------------------------------------CREATE DATA DIR
+def create_data_dir(data_dir):
+    current_dir = os.getcwd()
+    data_dir = os.path.join(current_dir, data_dir)
+
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir)
 
 
 #-------------------------------------------------------------------------------------------------------------- 
 #-------------------------------------------------------------------------------------------------------------- MAIN
 #-------------------------------------------------------------------------------------------------------------- 
 if __name__ == '__main__':
-
     
-
-    
-    #get user input from command line---------------------------------------------------------------- INPUT -->MIND THE DEFAULTS HERE USED FOR TESTING 
+    #parse user input from command line---------------------------------------------------------------- INPUT -->NOTE THE DEFAULTS HERE! 
     parser = argparse.ArgumentParser()
     parser.add_argument("-q", "--query", dest = "query_path", help="Enter Path to Query document (i.e. query_list.txt)" , default='query_list.txt')
     parser.add_argument("-o", "--ouput", dest = "output_path", help="Enter Path to Output document (i.e. results.txt", default='results.txt')
-    parser.add_argument("-d", "--dir", dest = "data_dir", help="Enter Directory to save indexed docs to (i.e. indexed_docs)", default="data")
+    parser.add_argument("-d", "--dir", dest = "data_dir", help="Enter Directory to save indexed docs to (i.e. indexed_docs)", default="data/index")
     parser.add_argument("-c", "--collection", dest = "collection", default="ap89_collection_small", help="Document Collection Directory")
     
-    args = parser.parse_args()
+    args = parser.parse_args() #get user args
+
     collection = args.collection
     query_path = args.query_path
     output_path = args.output_path
     data_dir = args.data_dir
 
-    print("\nUsing Corpus: \t\t" + collection)
-    sleep(1)
-   
+    #clean user input
+    data_dir = data_dir.rstrip("/")
+    create_data_dir(data_dir)
 
-    #create stopword list--------------------------------------------------------------------------- CREATE STOPWORD SET
-    #create_stopword_set("stopwords.txt")
+
+
+
+
+    print("\nUsing Corpus: \t\t" + collection)
+   
 
 
     # Retrieve the names of all files to be indexed in folder ./ap89_collection_small of the current directory
@@ -365,13 +380,14 @@ if __name__ == '__main__':
     
 
 
+    
+
+
     print("Pre-processing: \tComplete")
-    print("Corpus indexed: \tWritten to " + data_dir + "/")
+    print("Corpus indexed: \tWritten to disk at: " + data_dir + "/")
     sleep(2)
 
         
-    #execute output based on combination of input flags--------------------------------------------
-    #if args.document and args.term :
-        #get_both_info(args.document.lower(), args.term.lower())
-        #get_tf(args.term.lower(), args.document.lower()) #tmp experimental
-        #visit_docs()
+    #execute output based on combination of input flags--------------------------------------------    
+    #get_tf(args.term.lower(), args.document.lower()) #tmp experimental
+    #visit_docs()

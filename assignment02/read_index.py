@@ -14,6 +14,7 @@ ps = PorterStemmer()
 
 #os and other------------------------------------------------------
 import os
+import sys
 from time import sleep #for debugging and user feedback
 
 #user friendly exception tracebacks--------------------------------
@@ -257,16 +258,23 @@ def visit_docs(index=docNoIndex):
 #-------------------------------------------------------------------------------------------------------------- 
 if __name__ == '__main__':
 
+    
+
+    
     #get user input from command line---------------------------------------------------------------- INPUT -->MIND THE DEFAULTS HERE USED FOR TESTING 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-d", "--doc", dest = "document", help="Enter Document Name (i.e. DocNo)" , default='')
-    parser.add_argument("-t", "--term", dest = "term", help="Enter Term", default='')
+    parser.add_argument("-q", "--query", dest = "query_path", help="Enter Path to Query document (i.e. query_list.txt)" , default='query_list.txt')
+    parser.add_argument("-o", "--ouput", dest = "output_path", help="Enter Path to Output document (i.e. results.txt", default='results.txt')
+    parser.add_argument("-d", "--dir", dest = "data_dir", help="Enter Directory to save indexed docs to (i.e. indexed_docs)", default="data")
     parser.add_argument("-c", "--collection", dest = "collection", default="ap89_collection_small", help="Document Collection Directory")
     
     args = parser.parse_args()
     collection = args.collection
+    query_path = args.query_path
+    output_path = args.output_path
+    data_dir = args.data_dir
 
-    print("\nCollection: \t" + collection)
+    print("\nUsing Corpus: \t\t" + collection)
     sleep(1)
    
 
@@ -357,11 +365,13 @@ if __name__ == '__main__':
     
 
 
-    print("Processing Corpus complete!")
+    print("Pre-processing: \tComplete")
+    print("Corpus indexed: \tWritten to " + data_dir + "/")
     sleep(2)
-    
+
+        
     #execute output based on combination of input flags--------------------------------------------
-    if args.document and args.term :
+    #if args.document and args.term :
         #get_both_info(args.document.lower(), args.term.lower())
-        get_tf(args.term.lower(), args.document.lower()) #tmp experimental
+        #get_tf(args.term.lower(), args.document.lower()) #tmp experimental
         #visit_docs()

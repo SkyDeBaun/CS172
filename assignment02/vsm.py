@@ -12,6 +12,10 @@ from nltk.tokenize import RegexpTokenizer
 from nltk.stem import PorterStemmer
 ps = PorterStemmer()
 
+# https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
 #os and other------------------------------------------------------
 import os
 import sys
@@ -41,8 +45,15 @@ termCounter = {} #store count of term usage across entire corpus/collection
 termInfoIndex = {} #dictionary of term to term info
 docInfoIndex = {} #dictionary of doc key to doc info
 
-corpus = {} #experiment
+query_results = {} #dictionary of results to docno
 
+corpus = [] #experimental -> list of document text...
+big_corpus = []
+
+
+#init vectorizor--------------------------------------------------INIT VECTORIZOR
+vectorizer = TfidfVectorizer()
+my_counter = [0]
 
 #FUNCTIONS------------------------------------------------------------------------- FUNCTIONS
 #----------------------------------------------------------------------------------
@@ -255,6 +266,7 @@ def read_query_doc(query_path):
     with open (query_path, 'r') as file:
         query_list = file.readlines() #unprocesed list of queries
 
+        
     return query_list
 
 #create directory of indexed docs-------------------------------------CREATE DATA DIR
@@ -270,6 +282,19 @@ def create_data_dir(data_dir):
 def write_to_disk(filename, text):
     with open(data_dir + '/' + filename, 'wb') as save:
                     pickle.dump(text, save)
+
+
+#vectorizador---------------------------------------------------------
+def vec(corp, vectorizer=vectorizer):
+    #corpus.append(text)
+    doc_tfidf = vectorizer.fit_transform(corp)
+    #print("Doc?: " + str(my_counter[0]) + "-----------------------------------------------")
+    #print(vectorizer.get_feature_names()) 
+    #sleep(.05)
+
+    print(doc_tfidf)
+    #corpus.clear()
+    #my_counter[0] += 1
 
 
 
@@ -295,6 +320,9 @@ if __name__ == '__main__':
     #clean user input and create data directory-----------------------DATA DIRECTORY
     data_dir = data_dir.rstrip("/")
     create_data_dir(data_dir)
+
+
+    
 
 
 
@@ -334,8 +362,6 @@ if __name__ == '__main__':
                         .replace("\n", " ")
 
                 text = re.sub('[()!@#$%^&*:;,._`\']', '', text.lower()) #lower case and remove punctuation chars (leave hyphens!)
-
-                
                
                 tk = RegexpTokenizer('\s+', gaps = True)
                 tokens = tk.tokenize(text) 
@@ -379,8 +405,19 @@ if __name__ == '__main__':
                 uniqueWordSet.clear()
 
                 #save processed doc to disk----------------------------------WRITE TO DISK
-                write_to_disk(doc_file, doc_text)               
+                write_to_disk(doc_file, doc_text) 
+
+                #experiment****************(list of token key strings representing docs)
+                big_corpus.append(doc_text)     
+
+                #***************************!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                # idea here is to compare query (as tokenized keys with corpus as keys and do tfidf on that.....!!!!!)    
+                # 
+                #experiment***************************
+                vec(big_corpus)     
     
+
+
 
     print("Pre-processing: \tComplete")
     print("Corpus indexed: \tWritten to disk at: " + data_dir + "/")
@@ -388,6 +425,10 @@ if __name__ == '__main__':
 
 
     print("Reading Query: \t\t" + query_path)
+
+
+    #experiment
+    docs_tfidf = vectorizer.fit_transform(big_corpus)
 
         
     #execute output based on combination of input flags--------------------------------------------    

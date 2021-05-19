@@ -23,8 +23,19 @@ Note: all data structures for this assignment are stored in memory and not on di
 The assignment is implemented using the Python 3 language
 
 ### Instructions:
+User input is collected via the use of flags
+
+Note the following:
+   - a directory (relative to current) can be specified for saving indexed documents to disk (defaults to data/index/) using the -d (or --dir) flag
+   - a specific corpus can be specified using the -c ) or --collection) flag
+   - query_list.txt and results.txt are the defaults if -q and -o flags are ommited
 
 Example usage: 
-   - python VSM.py data/query_list.txt results.txt
+   - python vsm.py
+   - python vsm.py -q query_list.txt -o results.txt 
+   - python vsm.py -q query_list.txt -o results.txt  -d data/index/
+   - python vsm.py -q query_list.txt -o results.txt -d data/index/ -c ap89_collection_min
+
+
 
 ### Extra Credit:

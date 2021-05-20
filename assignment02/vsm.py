@@ -46,13 +46,13 @@ termInfoIndex = {} #dictionary of term to term info
 docInfoIndex = {} #dictionary of doc key to doc info
 
 
-query_dict = {} # query # to tokenized query string
+query_dict = {} # query# to tokenized query string
+corp_dict = {} # doc# to tokenized doc string
 
 
 
 
 query_results = {} #dictionary of results to docno
-
 corpus = [] #experimental -> list of document text...
 big_corpus = []
 
@@ -275,8 +275,8 @@ def read_query_doc(query_path):
     return query_text
 
 
-#tokenize text---------------------------------------------------------TOKENIZE INIVIDUAL QUERY
-def query_tokenizer(text):
+#tokenize text---------------------------------------------------------TOKENIZE TEXT STRING
+def text_tokenizer(text):
     text = re.sub('[()!@#$%^&*:;,._`\']', '', text.lower()) #lower case and remove punctuation chars (leave hyphens!)
                
     tk = RegexpTokenizer('\s+', gaps = True)
@@ -287,11 +287,9 @@ def query_tokenizer(text):
     for token in tokens:       
 
         #add to term index-------------------------------------- ADD STEM TO TERM INDEX (stopwords included)
-
-        #stemming using porter ----------------------------- STEMMING (Porter) 
         token_porter = ps.stem(token) #stemmed using porter tokenizer
         token_id = add_token(token_porter) #add stemmed token to dict (if not already in dict) and/or get its key#  
-        tokenized_text += str(token_id) + ' ' 
+        tokenized_text += str(token_id) + ' ' #concatenate string of space separated tokens
     
     return tokenized_text
 
@@ -306,7 +304,7 @@ def prep_query(query_path, query_dictionary=query_dict):
         query = text[5:].strip().lower()
 
         #add num : tokenized query string to dictionary
-        query_dictionary.__setitem__(num, query_tokenizer(query))
+        query_dictionary.__setitem__(num, text_tokenizer(query))
     
     return query_dictionary
 
@@ -328,10 +326,7 @@ def write_to_disk(filename, text):
                     pickle.dump(text, save)
 
 
-#vectorizador---------------------------------------------------------
-def vec(corp, vectorizer=vectorizer):
-    #corpus.append(text)
-    doc_tfidf = vectorizer.fit_transform(corp)
+
   
 
 def get_tf_idf_query_similarity(docs_tfidf, query, vectorizer=vectorizer):    
@@ -339,6 +334,12 @@ def get_tf_idf_query_similarity(docs_tfidf, query, vectorizer=vectorizer):
     return cosine_similarity(query_tfidf, docs_tfidf).flatten()
      
 
+
+
+#store tokenized doc to dict----------------------------------------
+def prep_doc_dictionary(docno, tokenized_text, corp_dict=corp_dict):
+    corp_dict.__setitem__(docno, tokenized_text)
+    return corp_dict
 
 
 #-------------------------------------------------------------------------------------------------------------- 
@@ -447,7 +448,8 @@ if __name__ == '__main__':
                 #write_to_disk(doc_file, doc_text) 
 
                 #experiment****************(list of token key strings representing docs)
-                big_corpus.append(doc_text)     
+                #big_corpus.append(doc_text)   
+                prep_doc_dictionary(docno, doc_text)  
 
                 #***************************!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 # idea here is to compare query (as tokenized keys with corpus as keys and do tfidf on that.....!!!!!)    
@@ -467,13 +469,14 @@ if __name__ == '__main__':
 
 
     #experiment
-    docs_tfidf = vectorizer.fit_transform(big_corpus) #tfidf for entire corpus...
+    #docs_tfidf = vectorizer.fit_transform(big_corpus) #tfidf for entire corpus...
     
 
     q = prep_query(query_path) #creates dictionary of query# to tokenized query strings from file of queries    
     print(q)
+    sleep(2)
 
-
+    print(corp_dict)
 
 
 

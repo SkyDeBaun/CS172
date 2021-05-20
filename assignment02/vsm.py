@@ -224,7 +224,7 @@ def get_tf(term, doc_no):
     #get document info (it total terms in doc)-------
     doc_key = get_doc_id(doc_no)
     if doc_key != -1:
-        total, unique = count_doc_terms(doc_key) 
+        terms_in_doc, unique = count_doc_terms(doc_key) 
 
     #get term count (for a given document)-----------
     doc_key = get_doc_id(doc_no)
@@ -233,24 +233,25 @@ def get_tf(term, doc_no):
     num_docs_with_term = count_docs(stem)
     num_docs_in_corp = len(docNoIndex)
 
-
-
+    if doc_key > -1 and term_id > -1:
+        term_count, positions = get_doc_term_info(term, term_id, doc_key)
+        term_frequency = term_count/terms_in_doc
+  
+   
     #debugging----------------------------------------   
-
     if doc_key != -1:
         print("DOCID: " + str(doc_key))
-    else:
-        print("Sorry, " + doc_no + " not found in the collection")
-
-    if doc_key > -1 and term_id > -1:
-        count, positions = get_doc_term_info(term, term_id, doc_key)
         print("Term: " + term)
-        print("Term frequency in document: " + str(count))
-        print("Total Terms in Doc: " + str(total))
-        print("Term Frequency: " + str(count/total))
-
+        print("Term frequency in document: " + str(term_count))
+        print("Total Terms in Doc: " + str(terms_in_doc))
+        print("Term Frequency: " + str(term_count/terms_in_doc))
         print("\nNumber of documents containing term: " + str(num_docs_with_term))
         print("Total number of docs in corpus: " + str(num_docs_in_corp))
+    else:
+        print("Sorry, " + doc_no + " not found in the collection")
+   
+
+    return term_frequency
 
         
         
@@ -280,8 +281,10 @@ def text_tokenizer(text):
     text = re.sub('[()!@#$%^&*:;,"._`\']', '', text.lower()) #lower case and remove punctuation chars (leave hyphens!)
                
     tk = RegexpTokenizer('\s+', gaps = True)
-    tokens = tk.tokenize(text) 
-    tokenized_text = '' #stores sting of token id's for indexed doc (is written to disk)
+    tokens = tk.tokenize(text) #get list of tekenized text
+    #tokenized_text = '' #stores string of token id's for indexed doc 
+
+    stemmed_tokens = [] #will hold stemmed tokens
 
     #process my list of tokens---------------------------------- FOR EACH TOKEN
     for token in tokens:       
@@ -290,10 +293,10 @@ def text_tokenizer(text):
         token_porter = ps.stem(token) #stemmed using porter tokenizer
         token_id = add_token(token_porter) #add stemmed token to dict (if not already in dict) and/or get its key#  
         #tokenized_text += str(token_id) + ' ' #concatenate string of space separated tokens --> using token key instead
-        tokenized_text += token_porter + ' ' #concatenate string of space separated tokens
-
+        #tokenized_text += token_porter + ' ' #concatenate string of space separated tokens
+        stemmed_tokens.append(token_porter) 
     
-    return tokenized_text
+    return stemmed_tokens
 
 
 #prep query (convert to list of queries)-----------------------------PREP QUERY 
@@ -303,11 +306,10 @@ def prep_query(query_path, query_dictionary=query_dict):
     for text in query_text:
         q_num = text[:4].strip() #assumes the query number isn't too big..
         num = re.sub('[.]', '', q_num)
-        query = text[5:].strip().lower()
+        query_string = text[5:].strip().lower()
 
-        #add num : tokenized query string to dictionary
-        query_dictionary.__setitem__(num, text_tokenizer(query))
-
+        #add num : stemmed and tokenized query string (as a list of stemmed tokens) to dictionary
+        query_dictionary.__setitem__(num, text_tokenizer(query_string))
     
     return query_dictionary
 
@@ -470,24 +472,55 @@ if __name__ == '__main__':
 
 
     print("Reading Query: \t\t" + query_path)
+
+    #ready queries -------------------------------------------------
     query_dict = prep_query(query_path) #creates dictionary of query# to tokenized query strings from file of queries    
 
+    #iterate through queries-------------------------------
     for item in query_dict:
-        current_query = query_dict[item]
+        current_query = query_dict[item] #current query (a list of stemmed work tokens)
+        print(current_query)
+        sleep(1)
 
-        tk = RegexpTokenizer('\s+', gaps = True)
+        for token in current_query:
+            #get termID-----------------
+            term_id = get_token_id(token) #get the term id #
+            print(term_id)
+
+        #iterate through corpus documents-------
+        for doc in docNoIndex:
+            pass
+
+            #iterate through current queries tokens and check if exists in current doc (otherwise skip)
+
+
+
+
+        '''
+        tokenized_query = [] #list to hold tokenized and stemmed query
+
+        tk = RegexpTokenizer('\s+', gaps = True) #init tokenizer
         token_list = tk.tokenize(current_query) #create list of query tokens
+
         for item in token_list:
-            item = ps.stem(item)
-            print(item)
-        sleep(2)
+            item = ps.stem(item) #stem the token
+            tokenized_query.append(item) #add stemmed token to list of tokens ()
+        #print(tokenized_query)
+        '''
+            
 
 
 
 
 
+    #get term frequency for a given term and document
+    tf = get_tf("china", "ap890101-0001")
+    print(tf)
 
-    #get_tf("china", "ap890101-0001")
+    #collection of all docs
+    for item in docNoIndex:
+        #print(item)
+        pass
 
 
     #experiment

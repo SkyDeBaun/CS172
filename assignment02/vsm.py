@@ -264,10 +264,28 @@ def visit_docs(index=docNoIndex):
 #read query doc-------------------------------------------------------READ QUERY DOC
 def read_query_doc(query_path):
     with open (query_path, 'r') as file:
-        query_list = file.readlines() #unprocesed list of queries
-
+        query_text = file.readlines() #unprocesed list of queries
         
+    return query_text
+
+#prep query (convert to list of queries)-----------------------------PREP QUERY 
+def prep_query(query_path):
+    query_text = read_query_doc(query_path)
+
+    query_list = []
+
+    for text in query_text:
+        q_num = text[:4].strip()
+        num = re.sub('[.]', '', q_num)
+
+        query = text[5:].strip().lower()
+        #print(num + ": "  + query)
+        query_list.append(query)
+
     return query_list
+
+
+
 
 #create directory of indexed docs-------------------------------------CREATE DATA DIR
 def create_data_dir(data_dir):
@@ -292,10 +310,40 @@ def vec(corp, vectorizer=vectorizer):
     #print(vectorizer.get_feature_names()) 
     #sleep(.05)
 
-    print(doc_tfidf)
+    #print(doc_tfidf)
     #corpus.clear()
     #my_counter[0] += 1
 
+def get_tf_idf_query_similarity(docs_tfidf, query, vectorizer=vectorizer):
+    """
+    vectorizer: TfIdfVectorizer model
+    docs_tfidf: tfidf vectors for all docs
+    query: query doc
+
+    return: cosine similarity between query and all docs
+    """
+    query_tfidf = vectorizer.transform([query])
+    return cosine_similarity(query_tfidf, docs_tfidf).flatten()
+     
+#tokenize text---------------------------------------------------------TOKENIZE QUERY
+def query_tokenizer(text):
+    text = re.sub('[()!@#$%^&*:;,._`\']', '', text.lower()) #lower case and remove punctuation chars (leave hyphens!)
+               
+    tk = RegexpTokenizer('\s+', gaps = True)
+    tokens = tk.tokenize(text) 
+    tokenized_text = '' #stores sting of token id's for indexed doc (is written to disk)
+
+    #process my list of tokens---------------------------------- FOR EACH TOKEN
+    for token in tokens:       
+
+        #add to term index-------------------------------------- ADD STEM TO TERM INDEX (stopwords included)
+
+        #stemming using porter ----------------------------- STEMMING (Porter) 
+        token_porter = ps.stem(token) #stemmed using porter tokenizer
+        token_id = add_token(token_porter) #add stemmed token to dict (if not already in dict) and/or get its key#  
+        tokenized_text += str(token_id) + ' ' 
+    
+    return tokenized_text
 
 
 #-------------------------------------------------------------------------------------------------------------- 
@@ -320,10 +368,6 @@ if __name__ == '__main__':
     #clean user input and create data directory-----------------------DATA DIRECTORY
     data_dir = data_dir.rstrip("/")
     create_data_dir(data_dir)
-
-
-    
-
 
 
     print("\nUsing Corpus: \t\t" + collection)
@@ -386,26 +430,26 @@ if __name__ == '__main__':
 
                     position_counter += 1 #position counter of token in current doc
                     token_counter += 1 #count total tokens/terms in current doc
-                    token_id = add_token(token) #add stemmed token to dict and get its key#
+                    token_id = add_token(token_porter) #add stemmed token to dict and get its key#
                     
                     
                     #create tuple of term information------------------- TERM TUPLE CREATION
-                    tpl_term_info = (token_id, doc_index_key, position_counter)  #token key, doc key, term position in doc
+                    #tpl_term_info = (token_id, doc_index_key, position_counter)  #token key, doc key, term position in doc
 
                     #add tuple of info to term_info index--------------- TERM INFO INDEX
-                    add_term_info(token_porter, tpl_term_info)
+                    #add_term_info(token_porter, tpl_term_info)
 
                     #save token to string-------------------------------
                     doc_text += str(token_id) + ' ' #doc text as string of token id's
-                    doc_file = docno + '.sav' #create unique filename for doc (will save to disc)
+                    #doc_file = docno + '.sav' #create unique filename for doc (will save to disc)
                        
 
                 #store count of unique terms in a doc------------------------
-                add_doc_info(doc_index_key, (token_counter, len(uniqueWordSet)))
-                uniqueWordSet.clear()
+                #add_doc_info(doc_index_key, (token_counter, len(uniqueWordSet)))
+                #uniqueWordSet.clear()
 
                 #save processed doc to disk----------------------------------WRITE TO DISK
-                write_to_disk(doc_file, doc_text) 
+                #write_to_disk(doc_file, doc_text) 
 
                 #experiment****************(list of token key strings representing docs)
                 big_corpus.append(doc_text)     
@@ -414,7 +458,7 @@ if __name__ == '__main__':
                 # idea here is to compare query (as tokenized keys with corpus as keys and do tfidf on that.....!!!!!)    
                 # 
                 #experiment***************************
-                vec(big_corpus)     
+                #vec(big_corpus)     
     
 
 
@@ -429,8 +473,41 @@ if __name__ == '__main__':
 
     #experiment
     docs_tfidf = vectorizer.fit_transform(big_corpus)
+    
+
+    queries = prep_query(query_path)
+
+    q = queries[0]
+    print(q)
+    sleep(2)
+
+    qt = query_tokenizer(q)
+    print(qt)
+    sleep(2)
+
+    query_tfidf = vectorizer.transform([qt])
+    print(query_tfidf)
+    sleep(3)
+
+    cosineSimilarities = cosine_similarity(query_tfidf, docs_tfidf).flatten()
+    print(cosineSimilarities)
+
+    cosineSimilarities.sort()
+    print(cosineSimilarities)
+
+    '''
+    for q in queries:
+        query_tfidf = vectorizer.transform(q)
+        print(get_tf_idf_query_similarity(docs_tfidf, q))
+        sleep(5)
+
+    '''
+
+
 
         
     #execute output based on combination of input flags--------------------------------------------    
     #get_tf(args.term.lower(), args.document.lower()) #tmp experimental
     #visit_docs()
+
+

@@ -350,7 +350,15 @@ def get_query_tfidf(query_list):
 
 #return cosine similarity between two 1D vectors (lists)--------------COSINE SIMILARITY
 def cosine_sim(vec1, vec2):
-    return dot(vec1, vec2)/(norm(vec1) * norm(vec2))
+
+    norm1 = norm(vec1)
+    norm2 = norm(vec2)
+
+    #check for division by zero!
+    if norm1 == 0 or norm2 == 0:
+        return 0
+    else:        
+        return dot(vec1, vec2)/(norm(vec1) * norm(vec2))
     
 
 
@@ -366,7 +374,8 @@ def write_results(sorted_results_dict, output_file, num_results=10):
 
         for result in sorted_results_dict:
 
-            cos_sim = result
+            cos_sim = result   
+
             info = sorted_results_dict[result]
             query_num = info[0]
             docno = info[1]                      
@@ -375,7 +384,6 @@ def write_results(sorted_results_dict, output_file, num_results=10):
             print(result_string)
             outfile.write(result_string)
 
-            print("Rank: " + str(rank))
             rank +=1
             if rank > 10:
                 break

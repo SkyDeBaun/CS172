@@ -15,6 +15,9 @@ ps = PorterStemmer()
 # https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+from numpy import dot
+from numpy.linalg import norm
 
 #os and other------------------------------------------------------
 import os
@@ -323,6 +326,12 @@ def prep_query(query_path, query_dictionary=query_dict):
 
 
 
+#return cosine similarity between two 1D vectors (lists)--------------COSINE SIMILARITY
+def cosine_sim(vec1, vec2):
+    return dot(vec1, vec2)/(norm(vec1) * norm(vec2))
+    
+
+
 
 #create directory of indexed docs-------------------------------------CREATE DATA DIR
 def create_data_dir(data_dir):
@@ -512,13 +521,15 @@ if __name__ == '__main__':
         #sleep(1)
 
         
-        doc_vector = []
+       
 
         
 
 
         #iterate through corpus documents-------
         for doc in docNoIndex:  
+
+            doc_vector = []
 
             for token in current_query:
 
@@ -539,6 +550,13 @@ if __name__ == '__main__':
             print("Query vector-------------------------------------------------")
             print(query_vector)
             sleep(.5)
+
+
+            cs = cosine_sim(query_vector, doc_vector)           
+
+            print("Cos Sim")
+            print(cs)
+
 
 
 

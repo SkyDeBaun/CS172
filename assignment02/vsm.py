@@ -19,7 +19,10 @@ from sklearn.metrics.pairwise import cosine_similarity
 #os and other------------------------------------------------------
 import os
 import sys
+import math
+
 from time import sleep #for debugging and user feedback
+from collections import Counter
 
 #user friendly exception tracebacks--------------------------------
 import traceback
@@ -49,13 +52,9 @@ docInfoIndex = {} #dictionary of doc key to doc info
 query_dict = {} # query# to tokenized query string
 corp_dict = {} # doc# to tokenized doc string
 
-
-
-
-query_results = {} #dictionary of results to docno
-corpus = [] #experimental -> list of document text...
-big_corpus = []
-
+#query related(used to calculate term frequency score for queries)----------------
+query_termIndex = {}
+query_termCounter = {}
 
 #init vectorizor--------------------------------------------------INIT VECTORIZOR
 vectorizer = TfidfVectorizer()
@@ -165,7 +164,11 @@ def get_doc_term_info(term, term_id, doc_id, index=termInfoIndex):
 
     counter = 0 #count term frequency in doc
     positions = []
-    info = index[term] #info is a list of tuples for term
+
+    try: #exception added here for the case when terms added via query have no associated tuples
+        info = index[term] #info is a list of tuples for term
+    except Exception:
+        return 0, [] #ie no id, and no list of positions
 
     for item in info: #item is a tuple 
         if doc_id == item[1]: #if doc id matches element 1 of tuple
@@ -215,7 +218,7 @@ def count_docs(term, index=termInfoIndex):
 
 
 #get term frequency---------------------------------------------------TERM FREQUENCY
-def get_tf(term, doc_no):
+def get_tfidf(term, doc_no):
 
     #tokenize term and get its id--------------------
     stem = ps.stem(term) #get the stemmed term token
@@ -236,22 +239,27 @@ def get_tf(term, doc_no):
     if doc_key > -1 and term_id > -1:
         term_count, positions = get_doc_term_info(term, term_id, doc_key)
         term_frequency = term_count/terms_in_doc
+
+        idf = math.log(num_docs_in_corp/num_docs_with_term) + 1
+        tfidf = idf *term_frequency
   
-   
+    '''
     #debugging----------------------------------------   
     if doc_key != -1:
-        print("DOCID: " + str(doc_key))
+        print("EXAMINING DOCUMENT: " + str(doc_key))
         print("Term: " + term)
         print("Term frequency in document: " + str(term_count))
-        print("Total Terms in Doc: " + str(terms_in_doc))
-        print("Term Frequency: " + str(term_count/terms_in_doc))
-        print("\nNumber of documents containing term: " + str(num_docs_with_term))
+        print("Total Terms in Doc: " + str(terms_in_doc))        
+        print("Total number of documents containing term: " + str(num_docs_with_term))
         print("Total number of docs in corpus: " + str(num_docs_in_corp))
-    else:
-        print("Sorry, " + doc_no + " not found in the collection")
-   
+        print("Term Frequency score: " + str(term_count/terms_in_doc))
+        print("IDF: " + str(idf))
+        print("TFIDF: " + str (tfidf))
+        print()
+    '''
+       
 
-    return term_frequency
+    return tfidf
 
         
         
@@ -276,7 +284,7 @@ def read_query_doc(query_path):
     return query_text
 
 
-#tokenize text---------------------------------------------------------TOKENIZE TEXT STRING
+#tokenize text---------------------------------------------------------TOKENIZE TEXT STRING(QUERIES ONLY)
 def text_tokenizer(text):
     text = re.sub('[()!@#$%^&*:;,"._`\']', '', text.lower()) #lower case and remove punctuation chars (leave hyphens!)
                
@@ -292,8 +300,8 @@ def text_tokenizer(text):
         #add to term index-------------------------------------- ADD STEM TO TERM INDEX (stopwords included)
         token_porter = ps.stem(token) #stemmed using porter tokenizer
         token_id = add_token(token_porter) #add stemmed token to dict (if not already in dict) and/or get its key#  
-        #tokenized_text += str(token_id) + ' ' #concatenate string of space separated tokens --> using token key instead
-        #tokenized_text += token_porter + ' ' #concatenate string of space separated tokens
+        
+        #add stemmed token to query list
         stemmed_tokens.append(token_porter) 
     
     return stemmed_tokens
@@ -470,6 +478,8 @@ if __name__ == '__main__':
     print("Corpus indexed: \tWritten to disk at: " + data_dir + "/")
     sleep(1)
 
+    
+
 
     print("Reading Query: \t\t" + query_path)
 
@@ -477,21 +487,58 @@ if __name__ == '__main__':
     query_dict = prep_query(query_path) #creates dictionary of query# to tokenized query strings from file of queries    
 
     #iterate through queries-------------------------------
-    for item in query_dict:
-        current_query = query_dict[item] #current query (a list of stemmed work tokens)
-        print(current_query)
-        sleep(1)
+    for item in query_dict: 
+        current_query = query_dict[item] #current query is a list of stemmed work tokens
 
+        length_of_query = len(current_query)
+        #print("Tokens in query: " + str(length_of_query))        
+        query_vector = []
+
+        #compute tfidf for current query string------------
         for token in current_query:
-            #get termID-----------------
-            term_id = get_token_id(token) #get the term id #
-            print(term_id)
+           #get tf for term used in query-----
+            tokenCounter = Counter(current_query)
+            count = tokenCounter[token]
+
+            query_tf = count/len(current_query)
+            query_idf = math.log(length_of_query/count)
+            query_vector.append(query_tf * query_idf)
+
+            #print("Term count for: " + token + " in query is " + str(count))
+
+        #print("Query Vector------------------------------------------")
+        #print(query_vector)
+        #print(current_query)
+        #sleep(1)
+
+        
+        doc_vector = []
+
+        
+
 
         #iterate through corpus documents-------
-        for doc in docNoIndex:
-            pass
+        for doc in docNoIndex:  
 
-            #iterate through current queries tokens and check if exists in current doc (otherwise skip)
+            for token in current_query:
+
+                #get termID-----------------
+                term_id = get_token_id(token) #get the term id #  
+               
+                #print(str(term_id) + "-> Token: " + token )  
+
+                #iterate through current queries tokens and add tfidf(from doc) to doc's vector---
+                tf = get_tfidf(token, doc)
+                doc_vector.append(tf)
+
+            
+           
+            
+            print("My vectors for: " + doc + "------------------------------")
+            print(doc_vector)
+            print("Query vector-------------------------------------------------")
+            print(query_vector)
+            sleep(.5)
 
 
 
@@ -514,28 +561,10 @@ if __name__ == '__main__':
 
 
     #get term frequency for a given term and document
-    tf = get_tf("china", "ap890101-0001")
-    print(tf)
+    #tf = get_tf("china", "ap890101-0001")
+    #print(tf)
 
-    #collection of all docs
-    for item in docNoIndex:
-        #print(item)
-        pass
-
-
-    #experiment
-    #big_corpus.append("hello")
-    #docs_tfidf = vectorizer.fit_transform(["big_corpus"]) #tfidf for entire corpus...
-    #print(docs_tfidf)
-
-
-
-    #q = prep_query(query_path) #creates dictionary of query# to tokenized query strings from file of queries    
-    #print(q)
-    #sleep(2)
-
-    #print(corp_dict)
-
+   
 
     #query_tfidf = vectorizer.transform(["34 556 17 3"])
 

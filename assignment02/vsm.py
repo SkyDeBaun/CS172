@@ -326,10 +326,43 @@ def prep_query(query_path, query_dictionary=query_dict):
 
 
 
+#compute tfidf for current query (as a list of tokens)---------------TFIDF OF QUERY
+def get_query_tfidf(query_list):
+
+    query_vector=[]
+    length_of_query = len(query_list)
+
+    for token in query_list:
+           
+        #count token use in query-----------
+        tokenCounter = Counter(query_list)
+        count = tokenCounter[token]
+
+        #get tf for term used in query-----
+        query_tf = count/len(query_list)
+
+        #get idf for term used in query-----
+        query_idf = math.log(length_of_query/count)
+        query_vector.append(query_tf * query_idf)
+
+    return query_vector
+
+
+
+
+
 #return cosine similarity between two 1D vectors (lists)--------------COSINE SIMILARITY
 def cosine_sim(vec1, vec2):
     return dot(vec1, vec2)/(norm(vec1) * norm(vec2))
     
+
+
+
+
+
+
+
+
 
 
 
@@ -499,11 +532,15 @@ if __name__ == '__main__':
     for item in query_dict: 
         current_query = query_dict[item] #current query is a list of stemmed work tokens
 
-        length_of_query = len(current_query)
+        #length_of_query = len(current_query)
         #print("Tokens in query: " + str(length_of_query))        
-        query_vector = []
+        query_vector = [] #reset for each new query
 
         #compute tfidf for current query string------------
+        query_vector = get_query_tfidf(current_query)
+
+
+        '''
         for token in current_query:
            #get tf for term used in query-----
             tokenCounter = Counter(current_query)
@@ -512,7 +549,7 @@ if __name__ == '__main__':
             query_tf = count/len(current_query)
             query_idf = math.log(length_of_query/count)
             query_vector.append(query_tf * query_idf)
-
+        '''
             #print("Term count for: " + token + " in query is " + str(count))
 
         #print("Query Vector------------------------------------------")

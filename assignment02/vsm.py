@@ -63,6 +63,7 @@ query_termCounter = {}
 vectorizer = TfidfVectorizer()
 my_counter = [0]
 
+
 #FUNCTIONS------------------------------------------------------------------------- FUNCTIONS
 #----------------------------------------------------------------------------------
 
@@ -223,6 +224,9 @@ def count_docs(term, index=termInfoIndex):
 #get term frequency---------------------------------------------------TERM FREQUENCY
 def get_doc_tfidf(term, doc_no):
 
+    tfidf=0 
+    idf=0
+
     #tokenize term and get its id--------------------
     stem = ps.stem(term) #get the stemmed term token
     term_id = get_token_id(stem) #get the term id #
@@ -292,7 +296,7 @@ def text_tokenizer(text):
         token_id = add_token(token_porter) #add stemmed token to dict (if not already in dict) and/or get its key#  
 
         #must account for new tokens (in query) not seen in corpus
-        tpl_term_info = (token_id, -1, -1)  #token key, doc key, term position in doc
+        tpl_term_info = (token_id, 0, 0)  #token key, doc key, term position in doc
 
         #add tuple of info to term_info index--------------- TERM INFO INDEX
         add_term_info(token_porter, tpl_term_info)
@@ -358,30 +362,25 @@ def write_results(sorted_results_dict, output_file, num_results=10):
     rank = 1
     
    
-    with open(output_path, 'w') as outfile:
+    with open(output_path, 'a') as outfile:
 
-        while rank < 11:
+        for result in sorted_results_dict:
 
-            for result in sorted_results_dict:
+            cos_sim = result
+            info = sorted_results_dict[result]
+            query_num = info[0]
+            docno = info[1]                      
 
-                cos_sim = result
-                info = sorted_results_dict[result]
-                query_num = info[0]
-                docno = info[1]                      
+            result_string = str(query_num) + " Q0 " + str(docno) + " " + str(rank) + " " + str(cos_sim) + " Exp" + "\n"
+            print(result_string)
+            outfile.write(result_string)
 
-                result_string = str(query_num) + " Q0 " + str(docno) + " " + str(rank) + " " + str(cos_sim) + " Exp"
-                print(result_string)
+            print("Rank: " + str(rank))
+            rank +=1
+            if rank > 10:
+                break
 
-                print("Rank: " + str(rank))
-                rank +=1
-                if rank > 10:
-                    break
-
-
-
-
-
-        #outfile.write()
+        
 
 
 

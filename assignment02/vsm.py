@@ -402,7 +402,7 @@ if __name__ == '__main__':
 
 
     clear_ouput_file(output_path) #clean output file in prep. for new run through corpus/query list    
-    print("\nUsing Corpus: \t\t" + collection)
+    print("\nCrawling Corpus: \t" + collection)
    
 
 

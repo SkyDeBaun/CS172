@@ -1,5 +1,8 @@
 #CS172 - Intro to Information Retrieval - UCR, Spring 2021
 #Sky DeBaun
+#Assingment 02
+#Read a text file of numbered queries and output a file of the top 10 results from the corpus (ap89_collection_small)
+#Uses reverse index and the Vector Space Model to output Cosine Similarity between a particular query and each document in the corpus
 
 #imports----------------------------------------------------------------------- IMPORTS
 import argparse
@@ -12,9 +15,7 @@ from nltk.tokenize import RegexpTokenizer
 from nltk.stem import PorterStemmer
 ps = PorterStemmer()
 
-# https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+#numpy------------------------------------------------------------
 import numpy as np
 from numpy import dot
 from numpy.linalg import norm
@@ -23,15 +24,14 @@ from numpy.linalg import norm
 import os
 import sys
 import math
-
 from time import sleep #for debugging and user feedback
+
+#counter magic(used for query vectors)-----------------------------
 from collections import Counter
 
 #user friendly exception tracebacks--------------------------------
 import traceback
 
-#serialize data structures --> https://realpython.com/courses/pickle-serializing-objects/
-import pickle
 
 
 #Vars and setup------------------------------------------------------------------- SETUP
@@ -39,7 +39,6 @@ doc_regex = re.compile("<DOC>.*?</DOC>", re.DOTALL)
 docno_regex = re.compile("<DOCNO>.*?</DOCNO>")
 text_regex = re.compile("<TEXT>.*?</TEXT>", re.DOTALL)
 
-data_dir = 'data' #path to directory used to save indexed docs
 
 #my indices (dictionaries)---------------------------------------------------------
 stopWordSet = set() #create empty set for stopwords
@@ -54,11 +53,6 @@ docInfoIndex = {} #dictionary of doc key to doc info
 
 query_dict = {} # query# to tokenized query string
 corp_dict = {} # doc# to tokenized doc string
-
-#query related(used to calculate term frequency score for queries)----------------
-query_termIndex = {}
-query_termCounter = {}
-
 
 
 #FUNCTIONS------------------------------------------------------------------------- FUNCTIONS
@@ -329,7 +323,7 @@ def get_query_tfidf(query_list):
     for token in query_list:
            
         #count token use in query-----------
-        tokenCounter = Counter(query_list) #numpy magic
+        tokenCounter = Counter(query_list) #counter magic
         count = tokenCounter[token]
 
         #get tf for term used in query-----
@@ -364,7 +358,7 @@ def write_results(sorted_results_dict, output_file, num_results=10):
     num_results = min(len(sorted_results_dict), num_results) #stay within scope (ie don't try to write too many)
     rank = 1
    
-    with open(output_path, 'a') as outfile:
+    with open(output_file, 'a') as outfile:
 
         for result in sorted_results_dict:
 
@@ -381,22 +375,10 @@ def write_results(sorted_results_dict, output_file, num_results=10):
             if rank > num_results:
                 break #quick fix to limit write out to specified range
 
-
-
-#create directory of indexed docs-------------------------------------CREATE DATA DIR ->> UNUSED
-def create_data_dir(data_dir):
-    current_dir = os.getcwd()
-    data_dir = os.path.join(current_dir, data_dir)
-
-    if not os.path.exists(data_dir):
-        os.makedirs(data_dir)
-
-
-#save tokenized and indexed doc to disk-------------------------------SAVE TO DISK ->> UNUSED
-def write_to_disk(filename, text):
-    with open(data_dir + '/' + filename, 'wb') as save:
-                    pickle.dump(text, save)
-
+#reset output file on startup-----------------------------------------CLEAR OUTPUT FILE
+def clear_ouput_file(output_file):
+    with open(output_file, 'w') as outfile:
+        outfile.write('')
 
 
 
@@ -420,12 +402,10 @@ if __name__ == '__main__':
     output_path = args.output_path
     data_dir = args.data_dir
 
-    #clean user input and create data directory-----------------------DATA DIRECTORY
-    data_dir = data_dir.rstrip("/")
-    create_data_dir(data_dir)
-
-
+    clear_ouput_file(output_path)
+    
     print("\nUsing Corpus: \t\t" + collection)
+
    
 
 
@@ -500,10 +480,10 @@ if __name__ == '__main__':
                 uniqueWordSet.clear()
 
  
+
     #processing corpus complete-------------------------------------------------------------------------
     #---------------------------------------------------------------------------------------------------
-    print("Pre-processing: \tComplete")
-    print("Corpus indexed: \tWritten to disk at: " + data_dir + "/")
+    print("Pre-processing: \tcomplete")
     print("Reading Query: \t\t" + query_path)
 
 
@@ -550,3 +530,6 @@ if __name__ == '__main__':
 
         #write to file------------------------------------------------
         write_results(results, output_path)
+
+    print("\nRetrieval Complete!")
+    print("Results written to: \t" + output_path)

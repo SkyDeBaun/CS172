@@ -132,7 +132,7 @@ def add_document_number(doc_id, index=docNoIndex):
         print()  
 
 
-#get document id-------------------------------------------------------
+#get document id-------------------------------------------------------GET DOC ID
 def get_doc_id(doc, index=docNoIndex):
     try:
         if doc in index:
@@ -154,7 +154,7 @@ def add_term_info(token_key, tpl_info, index=termInfoIndex):
         termInfoIndex.__setitem__(token_key, [tpl_info]) #add new entry
 
 
-#get info for doc + term ---------------------------------------------- 
+#get info for doc + term ----------------------------------------------GET DOC INFO 
 def get_doc_term_info(term, term_id, doc_id, index=termInfoIndex):
 
     counter = 0 #count term frequency in doc
@@ -192,7 +192,7 @@ def count_doc_terms(doc_key, index=docInfoIndex):
         return 0, 0
 
 
-#count docs(that use a specific term)-------------------------------------
+#count docs(that use a specific term)----------------------------------COUNT DOCS(USING TERM)
 def count_docs(term, index=termInfoIndex):
     
     if get_token_id(term) != -1:
@@ -212,7 +212,7 @@ def count_docs(term, index=termInfoIndex):
 
 
 
-#get term frequency---------------------------------------------------TERM FREQUENCY
+#get term frequency----------------------------------------------------TERM FREQUENCY
 def get_doc_tfidf(term, doc_no):
 
     tfidf=0 
@@ -269,7 +269,7 @@ def read_query_doc(query_path):
     return query_text
 
 
-#tokenize text---------------------------------------------------------TOKENIZE TEXT STRING(QUERIES ONLY)
+#tokenize text--------------------------------------------------------TOKENIZE TEXT STRING(QUERIES ONLY)
 def text_tokenizer(text):
     text = re.sub('[()!@#$%^&*:;,"._`\']', '', text.lower()) #lower case and remove punctuation chars (leave hyphens!)
                
@@ -279,17 +279,17 @@ def text_tokenizer(text):
 
     stemmed_tokens = [] #will hold stemmed tokens
 
-    #process my list of tokens---------------------------------- FOR EACH TOKEN
+    #process my list of tokens---------------------------------- 
     for token in tokens:       
 
-        #add to term index-------------------------------------- ADD STEM TO TERM INDEX (stopwords included)
+        #add to stemmed term to index--------------------------- 
         token_porter = ps.stem(token) #stemmed using porter tokenizer
         token_id = add_token(token_porter) #add stemmed token to dict (if not already in dict) and/or get its key#  
 
         #must account for new tokens (in query) not seen in corpus
         tpl_term_info = (token_id, 0, 0)  #token key, doc key, term position in doc
 
-        #add tuple of info to term_info index--------------- TERM INFO INDEX
+        #add tuple of info to term_info index------------------ 
         add_term_info(token_porter, tpl_term_info)
         
         #add stemmed token to query list
@@ -298,7 +298,7 @@ def text_tokenizer(text):
     return stemmed_tokens
 
 
-#prep query (convert to list of queries)-----------------------------PREP QUERY 
+#prep query (convert to list of queries)------------------------------PREP QUERY 
 def prep_query(query_path, query_dictionary=query_dict):
     query_text = read_query_doc(query_path)
 
@@ -314,7 +314,7 @@ def prep_query(query_path, query_dictionary=query_dict):
 
 
 
-#compute tfidf for current query (as a list of tokens)---------------TFIDF OF QUERY
+#compute tfidf for current query (as a list of tokens)----------------TFIDF OF QUERY
 def get_query_tfidf(query_list):
 
     query_vector=[]
@@ -338,7 +338,7 @@ def get_query_tfidf(query_list):
 
 
 
-#return cosine similarity between two 1D vectors (lists)--------------COSINE SIMILARITY
+#return cosine similarity between two 1D vectors (i.e. lists)---------COSINE SIMILARITY
 def cosine_sim(vec1, vec2):
 
     norm1 = norm(vec1)
@@ -352,7 +352,7 @@ def cosine_sim(vec1, vec2):
     
 
 
-#write query results to file-----------------------------------------WRITE RESULTS TO FILE
+#write query results to file-------------------------------------------WRITE RESULTS TO FILE
 def write_results(sorted_results_dict, output_file, num_results=10): 
 
     num_results = min(len(sorted_results_dict), num_results) #stay within scope (ie don't try to write too many)
@@ -388,24 +388,21 @@ def clear_ouput_file(output_file):
 #-------------------------------------------------------------------------------------------------------------- 
 if __name__ == '__main__':
     
-    #parse user input from command line---------------------------------------------------------------- INPUT -->NOTE THE DEFAULTS HERE! 
+
+    #parse user input from command line-------------------------------------------------------------USER INPUT --> NOTE THE DEFAULTS HERE! 
     parser = argparse.ArgumentParser()
     parser.add_argument("-q", "--query", dest = "query_path", help="Enter Path to Query document (i.e. query_list.txt)" , default='query_list.txt')
     parser.add_argument("-o", "--ouput", dest = "output_path", help="Enter Path to Output document (i.e. results.txt", default='results.txt')
-    parser.add_argument("-d", "--dir", dest = "data_dir", help="Enter Directory to save indexed docs to (i.e. indexed_docs)", default="data/index")
     parser.add_argument("-c", "--collection", dest = "collection", default="ap89_collection_small", help="Document Collection Directory")
     
     args = parser.parse_args() #get user args
-
     collection = args.collection
     query_path = args.query_path
     output_path = args.output_path
-    data_dir = args.data_dir
 
-    clear_ouput_file(output_path)
-    
+
+    clear_ouput_file(output_path) #clean output file in prep. for new run through corpus/query list    
     print("\nUsing Corpus: \t\t" + collection)
-
    
 
 

@@ -59,9 +59,6 @@ corp_dict = {} # doc# to tokenized doc string
 query_termIndex = {}
 query_termCounter = {}
 
-#init vectorizor--------------------------------------------------INIT VECTORIZOR
-vectorizer = TfidfVectorizer()
-my_counter = [0]
 
 
 #FUNCTIONS------------------------------------------------------------------------- FUNCTIONS
@@ -332,7 +329,7 @@ def get_query_tfidf(query_list):
     for token in query_list:
            
         #count token use in query-----------
-        tokenCounter = Counter(query_list)
+        tokenCounter = Counter(query_list) #numpy magic
         count = tokenCounter[token]
 
         #get tf for term used in query-----
@@ -343,7 +340,6 @@ def get_query_tfidf(query_list):
         query_vector.append(query_tf * query_idf)
 
     return query_vector
-
 
 
 
@@ -362,43 +358,32 @@ def cosine_sim(vec1, vec2):
     
 
 
-
-#write query results to file-----------------------------------------
+#write query results to file-----------------------------------------WRITE RESULTS TO FILE
 def write_results(sorted_results_dict, output_file, num_results=10): 
 
-    max_results = max(len(sorted_results_dict), num_results) #stay within scope (ie don't try to write too many)
+    num_results = min(len(sorted_results_dict), num_results) #stay within scope (ie don't try to write too many)
     rank = 1
-    
    
     with open(output_path, 'a') as outfile:
 
         for result in sorted_results_dict:
 
-            cos_sim = result   
-
+            cos_sim = result 
             info = sorted_results_dict[result]
             query_num = info[0]
             docno = info[1] 
-
-           
-
-            result_string = str(query_num) + " Q0 " + str(docno) + " " + str(rank) + " " + str(cos_sim) + " Exp" + "\n"
-
-            print(result_string)
-            #outfile.write(result_string)
-            outfile.write('%3s Q0  %13s %2s %.16f Exp\n' % (str(query_num), str(docno),str(rank),(cos_sim)))
+            
+            output_string = '%3s Q0  %13s %2s %.16f Exp\n' % (str(query_num), str(docno),str(rank),(cos_sim))
+            outfile.write(output_string)
+            #print(output_string) 
 
             rank +=1
-            if rank > 10:
-                break
-
-        
+            if rank > num_results:
+                break #quick fix to limit write out to specified range
 
 
 
-
-
-#create directory of indexed docs-------------------------------------CREATE DATA DIR
+#create directory of indexed docs-------------------------------------CREATE DATA DIR ->> UNUSED
 def create_data_dir(data_dir):
     current_dir = os.getcwd()
     data_dir = os.path.join(current_dir, data_dir)
@@ -407,20 +392,13 @@ def create_data_dir(data_dir):
         os.makedirs(data_dir)
 
 
-#save tokenized and indexed doc to disk-------------------------------SAVE TO DISK
+#save tokenized and indexed doc to disk-------------------------------SAVE TO DISK ->> UNUSED
 def write_to_disk(filename, text):
     with open(data_dir + '/' + filename, 'wb') as save:
                     pickle.dump(text, save)
 
 
 
-
-
-
-#store tokenized doc to dict----------------------------------------!!!UNUSED!!!
-def prep_doc_dictionary(docno, tokenized_text, corp_dict=corp_dict):
-    corp_dict.__setitem__(docno, tokenized_text)
-    return corp_dict
 
 
 #-------------------------------------------------------------------------------------------------------------- 
@@ -516,75 +494,42 @@ if __name__ == '__main__':
                     #add tuple of info to term_info index--------------- TERM INFO INDEX
                     add_term_info(token_porter, tpl_term_info)
 
-                    #save token to string-------------------------------
-                    doc_text += str(token_id) + ' ' #doc text as string of token id's
-                    #doc_file = docno + '.sav' #create unique filename for doc (will save to disc)
-                       
 
                 #store count of unique terms in a doc------------------------
                 add_doc_info(doc_index_key, (token_counter, len(uniqueWordSet)))
                 uniqueWordSet.clear()
 
-                #save processed doc to disk----------------------------------WRITE TO DISK
-                #write_to_disk(doc_file, doc_text) 
-
-                #save tokenized doc to dictionary(with docno)----------------WRITE TO MEMORY  
-                 
-                prep_doc_dictionary(docno, vectorizer.fit_transform([doc_text]))  
-                
-                #big_corpus.append(doc_text) #nneded for fitting vectorizor?????
-                #docs_tfidf = vectorizer.fit_transform([doc_text]) #tfidf for entire corpus...
-                #print(docs_tfidf)
-                #big_corpus.clear()
-                #sleep(3)
-                
-
-
-
-
+ 
+    #processing corpus complete-------------------------------------------------------------------------
+    #---------------------------------------------------------------------------------------------------
     print("Pre-processing: \tComplete")
     print("Corpus indexed: \tWritten to disk at: " + data_dir + "/")
-    sleep(1)
-
-    
-
-
     print("Reading Query: \t\t" + query_path)
+
 
     #ready queries -------------------------------------------------
     query_dict = prep_query(query_path) #read file and create dictionary of query# : stemmed and tokenized query list    
 
-    #iterate through queries-------------------------------
+    #iterate through queries----------------------------------------
     for query_number in query_dict: 
         current_query = query_dict[query_number] #current query is a list of stemmed work tokens  
         
         query_vector = [] #reset for each new query (used to compute cosine similarity)
         result_dictionary = {} #dictionary to hold {rank : tuple of {query_no, docno}} for results of cosine similarity-> reset for each new query
 
-
-        #get tfidf for current query "string" (is list of tokens)------------
+        #get tfidf for current query "string" (is list of tokens)----
         query_vector = get_query_tfidf(current_query)
 
-        #print("Term count for: " + token + " in query is " + str(count))
-        #print("Query Vector------------------------------------------")
-        #print(query_vector)
-        #print(current_query)
-        #sleep(1)
-
-        
-       
-
-        
 
 
-        #iterate through corpus documents-------
+        #iterate through corpus documents----------------------------
         for doc in docNoIndex:  
 
             doc_vector = [] #reset for each new document
 
             for token in current_query:
 
-                #get termID-----------------
+                #get termID------------------------------------------
                 term_id = get_token_id(token) #get the term id #  
                
                 #print(str(term_id) + "-> Token: " + token )  
@@ -593,85 +538,15 @@ if __name__ == '__main__':
                 term_freq = get_doc_tfidf(token, doc)
                 doc_vector.append(term_freq)
 
-            
-           
-            
-            #print("My vectors for: " + doc + "------------------------------")
-            #print(doc_vector)
-            #print("Query vector-------------------------------------------------")
-            #print(query_vector)
-            #sleep(.5)
-
 
             cs = cosine_sim(query_vector, doc_vector)   
 
             result_tuple = (query_number,doc) 
             result_dictionary.__setitem__(cs, result_tuple)   
+           
 
-            #print("Cos Sim")
-            #print(cs)
-            #print(result_tuple)
-
-        #results for a particular query---------------------
+        #results for a particular query-------------------------------
         results = dict(sorted(result_dictionary.items(), key=lambda item: item[0], reverse=True))
-        #print(results)
 
+        #write to file------------------------------------------------
         write_results(results, output_path)
-        #sleep(10)
-
-
-
-
-
-        '''
-        tokenized_query = [] #list to hold tokenized and stemmed query
-
-        tk = RegexpTokenizer('\s+', gaps = True) #init tokenizer
-        token_list = tk.tokenize(current_query) #create list of query tokens
-
-        for item in token_list:
-            item = ps.stem(item) #stem the token
-            tokenized_query.append(item) #add stemmed token to list of tokens ()
-        #print(tokenized_query)
-        '''
-            
-
-
-
-
-
-    #get term frequency for a given term and document
-    #tf = get_tf("china", "ap890101-0001")
-    #print(tf)
-
-   
-
-    #query_tfidf = vectorizer.transform(["34 556 17 3"])
-
-    #cosineSimilarities = cosine_similarity(query_tfidf, docs_tfidf).flatten()
-    #print(cosineSimilarities)
-
-
-    '''
-    qt = query_tokenizer(q) #tokenizes a single query
-    print(qt)
-    sleep(2)
-
-    query_tfidf = vectorizer.transform([qt])
-    print(query_tfidf)
-    sleep(3)
-
-    cosineSimilarities = cosine_similarity(query_tfidf, docs_tfidf).flatten()
-    print(cosineSimilarities)
-
-    cosineSimilarities.sort()
-    print(cosineSimilarities)
-    '''
-
-
-        
-    #execute output based on combination of input flags--------------------------------------------    
-    #get_tf(args.term.lower(), args.document.lower()) #tmp experimental
-    #visit_docs()
-
-

@@ -378,11 +378,15 @@ def write_results(sorted_results_dict, output_file, num_results=10):
 
             info = sorted_results_dict[result]
             query_num = info[0]
-            docno = info[1]                      
+            docno = info[1] 
+
+           
 
             result_string = str(query_num) + " Q0 " + str(docno) + " " + str(rank) + " " + str(cos_sim) + " Exp" + "\n"
+
             print(result_string)
-            outfile.write(result_string)
+            #outfile.write(result_string)
+            outfile.write('%3s Q0  %13s %2s %.16f Exp\n' % (str(query_num), str(docno),str(rank),(cos_sim)))
 
             rank +=1
             if rank > 10:

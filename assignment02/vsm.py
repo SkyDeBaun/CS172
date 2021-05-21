@@ -221,7 +221,7 @@ def count_docs(term, index=termInfoIndex):
 
 
 #get term frequency---------------------------------------------------TERM FREQUENCY
-def get_tfidf(term, doc_no):
+def get_doc_tfidf(term, doc_no):
 
     #tokenize term and get its id--------------------
     stem = ps.stem(term) #get the stemmed term token
@@ -259,25 +259,12 @@ def get_tfidf(term, doc_no):
         print("IDF: " + str(idf))
         print("TFIDF: " + str (tfidf))
         print()
-    '''
-       
+    '''      
 
     return tfidf
 
         
-        
-
-#iterate through collection of docs (uses reverse index)******
-def visit_docs(index=docNoIndex):
-    for key in index.keys():
-        print(key, '->', index[key])
-        
-        #get doc key----------------------
-        doc_key = index[key]
-
-        print(docInfoIndex[doc_key])
-        sleep(3)
-
+ 
     
 #read query doc-------------------------------------------------------READ QUERY DOC
 def read_query_doc(query_path):
@@ -303,6 +290,12 @@ def text_tokenizer(text):
         #add to term index-------------------------------------- ADD STEM TO TERM INDEX (stopwords included)
         token_porter = ps.stem(token) #stemmed using porter tokenizer
         token_id = add_token(token_porter) #add stemmed token to dict (if not already in dict) and/or get its key#  
+
+        #must account for new tokens (in query) not seen in corpus
+        tpl_term_info = (token_id, -1, -1)  #token key, doc key, term position in doc
+
+        #add tuple of info to term_info index--------------- TERM INFO INDEX
+        add_term_info(token_porter, tpl_term_info)
         
         #add stemmed token to query list
         stemmed_tokens.append(token_porter) 
@@ -358,9 +351,37 @@ def cosine_sim(vec1, vec2):
 
 
 
+#write query results to file-----------------------------------------
+def write_results(sorted_results_dict, output_file, num_results=10): 
+
+    max_results = max(len(sorted_results_dict), num_results) #stay within scope (ie don't try to write too many)
+    rank = 1
+    
+   
+    with open(output_path, 'w') as outfile:
+
+        while rank < 11:
+
+            for result in sorted_results_dict:
+
+                cos_sim = result
+                info = sorted_results_dict[result]
+                query_num = info[0]
+                docno = info[1]                      
+
+                result_string = str(query_num) + " Q0 " + str(docno) + " " + str(rank) + " " + str(cos_sim) + " Exp"
+                print(result_string)
+
+                print("Rank: " + str(rank))
+                rank +=1
+                if rank > 10:
+                    break
 
 
 
+
+
+        #outfile.write()
 
 
 
@@ -382,16 +403,10 @@ def write_to_disk(filename, text):
 
 
 
-  
-
-def get_tf_idf_query_similarity(docs_tfidf, query, vectorizer=vectorizer):    
-    query_tfidf = vectorizer.transform([query])
-    return cosine_similarity(query_tfidf, docs_tfidf).flatten()
-     
 
 
 
-#store tokenized doc to dict----------------------------------------
+#store tokenized doc to dict----------------------------------------!!!UNUSED!!!
 def prep_doc_dictionary(docno, tokenized_text, corp_dict=corp_dict):
     corp_dict.__setitem__(docno, tokenized_text)
     return corp_dict
@@ -526,32 +541,20 @@ if __name__ == '__main__':
     print("Reading Query: \t\t" + query_path)
 
     #ready queries -------------------------------------------------
-    query_dict = prep_query(query_path) #creates dictionary of query# to tokenized query strings from file of queries    
+    query_dict = prep_query(query_path) #read file and create dictionary of query# : stemmed and tokenized query list    
 
     #iterate through queries-------------------------------
-    for item in query_dict: 
-        current_query = query_dict[item] #current query is a list of stemmed work tokens
+    for query_number in query_dict: 
+        current_query = query_dict[query_number] #current query is a list of stemmed work tokens  
+        
+        query_vector = [] #reset for each new query (used to compute cosine similarity)
+        result_dictionary = {} #dictionary to hold {rank : tuple of {query_no, docno}} for results of cosine similarity-> reset for each new query
 
-        #length_of_query = len(current_query)
-        #print("Tokens in query: " + str(length_of_query))        
-        query_vector = [] #reset for each new query
 
-        #compute tfidf for current query string------------
+        #get tfidf for current query "string" (is list of tokens)------------
         query_vector = get_query_tfidf(current_query)
 
-
-        '''
-        for token in current_query:
-           #get tf for term used in query-----
-            tokenCounter = Counter(current_query)
-            count = tokenCounter[token]
-
-            query_tf = count/len(current_query)
-            query_idf = math.log(length_of_query/count)
-            query_vector.append(query_tf * query_idf)
-        '''
-            #print("Term count for: " + token + " in query is " + str(count))
-
+        #print("Term count for: " + token + " in query is " + str(count))
         #print("Query Vector------------------------------------------")
         #print(query_vector)
         #print(current_query)
@@ -566,7 +569,7 @@ if __name__ == '__main__':
         #iterate through corpus documents-------
         for doc in docNoIndex:  
 
-            doc_vector = []
+            doc_vector = [] #reset for each new document
 
             for token in current_query:
 
@@ -576,23 +579,34 @@ if __name__ == '__main__':
                 #print(str(term_id) + "-> Token: " + token )  
 
                 #iterate through current queries tokens and add tfidf(from doc) to doc's vector---
-                tf = get_tfidf(token, doc)
-                doc_vector.append(tf)
+                term_freq = get_doc_tfidf(token, doc)
+                doc_vector.append(term_freq)
 
             
            
             
-            print("My vectors for: " + doc + "------------------------------")
-            print(doc_vector)
-            print("Query vector-------------------------------------------------")
-            print(query_vector)
-            sleep(.5)
+            #print("My vectors for: " + doc + "------------------------------")
+            #print(doc_vector)
+            #print("Query vector-------------------------------------------------")
+            #print(query_vector)
+            #sleep(.5)
 
 
-            cs = cosine_sim(query_vector, doc_vector)           
+            cs = cosine_sim(query_vector, doc_vector)   
 
-            print("Cos Sim")
-            print(cs)
+            result_tuple = (query_number,doc) 
+            result_dictionary.__setitem__(cs, result_tuple)   
+
+            #print("Cos Sim")
+            #print(cs)
+            #print(result_tuple)
+
+        #results for a particular query---------------------
+        results = dict(sorted(result_dictionary.items(), key=lambda item: item[0], reverse=True))
+        #print(results)
+
+        write_results(results, output_path)
+        #sleep(10)
 
 
 

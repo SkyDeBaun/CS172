@@ -4,6 +4,8 @@
 #Read a text file of numbered queries and output a file of the top 10 results from the corpus (ap89_collection_small)
 #Uses reverse index and the Vector Space Model to output Cosine Similarity between a particular query and each document in the corpus
 
+
+
 #imports----------------------------------------------------------------------- IMPORTS
 import argparse #parse user input
 import re #regex
@@ -40,18 +42,16 @@ doc_regex = re.compile("<DOC>.*?</DOC>", re.DOTALL)
 docno_regex = re.compile("<DOCNO>.*?</DOCNO>")
 text_regex = re.compile("<TEXT>.*?</TEXT>", re.DOTALL)
 
-
 #my indices (dictionaries)---------------------------------------------------------
 stopWordSet = set() #create empty set for stopwords
 uniqueWordSet = set() #used to count distinct terms
-
 docNoIndex = {} #dictionary for document reverse index (i.e. document name to document ID) ex: {ap890101-0001': 0}
 termIndex = {} #dictionary of tokens ex: {token:token_id}
 termCounter = {} #store count of term usage across entire corpus/collection 
 termInfoIndex = {} #dictionary of term to term info
 docInfoIndex = {} #dictionary of doc key to doc info ex: {doc_key:tuple}
-
 query_dict = {} # query# to tokenized query string i.e. {query_number:list_of_stemmed_tokens}
+
 
 
 #FUNCTIONS------------------------------------------------------------------------- FUNCTIONS

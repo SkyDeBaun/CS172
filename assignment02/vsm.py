@@ -5,9 +5,9 @@
 #Uses reverse index and the Vector Space Model to output Cosine Similarity between a particular query and each document in the corpus
 
 #imports----------------------------------------------------------------------- IMPORTS
-import argparse
-import re
-import zipfile
+import argparse #parse user input
+import re #regex
+#import zipfile
 
 #nltk-------------------------------------------------------------
 import nltk
@@ -23,11 +23,11 @@ from numpy.linalg import norm
 #os and other------------------------------------------------------
 import os
 import sys
-import math
-from time import sleep #for debugging and user feedback
+import math #dot products and normals
+from time import sleep #used for debugging
 
 #counter magic(used for query vectors)-----------------------------
-from collections import Counter
+from collections import Counter #used with query string/lists
 
 #user friendly exception tracebacks--------------------------------
 import traceback
@@ -35,6 +35,7 @@ import traceback
 
 
 #Vars and setup------------------------------------------------------------------- SETUP
+#---------------------------------------------------------------------------------
 doc_regex = re.compile("<DOC>.*?</DOC>", re.DOTALL)
 docno_regex = re.compile("<DOCNO>.*?</DOCNO>")
 text_regex = re.compile("<TEXT>.*?</TEXT>", re.DOTALL)
@@ -45,20 +46,18 @@ stopWordSet = set() #create empty set for stopwords
 uniqueWordSet = set() #used to count distinct terms
 
 docNoIndex = {} #dictionary for document reverse index (i.e. document name to document ID) ex: {ap890101-0001': 0}
-termIndex = {} #dictionary of tokens
-termCounter = {} #store count of term usage across entire corpus/collection
+termIndex = {} #dictionary of tokens ex: {token:token_id}
+termCounter = {} #store count of term usage across entire corpus/collection 
 termInfoIndex = {} #dictionary of term to term info
-docInfoIndex = {} #dictionary of doc key to doc info
+docInfoIndex = {} #dictionary of doc key to doc info ex: {doc_key:tuple}
 
-
-query_dict = {} # query# to tokenized query string
-corp_dict = {} # doc# to tokenized doc string
+query_dict = {} # query# to tokenized query string i.e. {query_number:list_of_stemmed_tokens}
 
 
 #FUNCTIONS------------------------------------------------------------------------- FUNCTIONS
 #----------------------------------------------------------------------------------
 
-#update term count (across the whole collection/corpus)----------------
+#update term count (across the whole collection/corpus)----------------GET TERM COUNT(IN CORPUS)
 def get_term_count(token_id, index=termCounter):
 
     if token_id in termCounter:
@@ -69,7 +68,7 @@ def get_term_count(token_id, index=termCounter):
     return counter
 
 
-#add token------------------------------------------------------------ TOKENS: DICTIONARY
+#add token-------------------------------------------------------------ADD TOKEN
 #add token to (reverse) index of tokens and return token's index # (ID)
 def add_token(token, index=termIndex, counter=termCounter): 
     try:
@@ -98,7 +97,7 @@ def add_token(token, index=termIndex, counter=termCounter):
         print()   
 
 
-#get token id-------------------------------------------------------
+#get token id----------------------------------------------------------GET TOKEN ID
 def get_token_id(token, index=termIndex):
     try:
         if token in index:
@@ -112,7 +111,7 @@ def get_token_id(token, index=termIndex):
         print()    
 
         
-#add document number to (reverse) index of documents-------------------- DOCUMENT NUMBER: DICTIONARY
+#add document number to (reverse) index of documents--------------------DOCUMENT NUMBER: DICTIONARY
 def add_document_number(doc_id, index=docNoIndex):
     try:
         doc_id = doc_id.lower() #lets make this uniform...
@@ -132,7 +131,7 @@ def add_document_number(doc_id, index=docNoIndex):
         print()  
 
 
-#get document id-------------------------------------------------------GET DOC ID
+#get document id--------------------------------------------------------GET DOC ID
 def get_doc_id(doc, index=docNoIndex):
     try:
         if doc in index:
@@ -173,15 +172,15 @@ def get_doc_term_info(term, term_id, doc_id, index=termInfoIndex):
     return counter, positions
 
 
-#add to doc info dictionary--------------------------------------------
+#add to doc info dictionary--------------------------------------------ADD DOC INFO(TUPLE)
 def add_doc_info(doc_key, tpl_info, index=docInfoIndex):
     if doc_key in docInfoIndex:
-        docInfoIndex[doc_key].append(tpl_info)
+        docInfoIndex[doc_key].append(tpl_info) #tuple is: (token_counter, len(uniqueWordSet)
     else:
         docInfoIndex.__setitem__(doc_key, [tpl_info])
 
 
-#count total terms used in doc-----------------------------------------
+#count total terms used in doc-----------------------------------------GET TERM COUNT(IN DOC)
 def count_doc_terms(doc_key, index=docInfoIndex):
     if doc_key != -1:
         info = index[doc_key] #list of tuples.. kind of redundant as its always a list of size 1
@@ -211,8 +210,7 @@ def count_docs(term, index=termInfoIndex):
 
 
 
-
-#get term frequency----------------------------------------------------TERM FREQUENCY
+#get term tfidf--------------------------------------------------------GET TFIDF(FOR A DOC)
 def get_doc_tfidf(term, doc_no):
 
     tfidf=0 
@@ -257,16 +255,16 @@ def get_doc_tfidf(term, doc_no):
     '''      
 
     return tfidf
-
         
  
     
-#read query doc-------------------------------------------------------READ QUERY DOC
+#read query doc-------------------------------------------------------READ QUERY FILE
 def read_query_doc(query_path):
     with open (query_path, 'r') as file:
         query_text = file.readlines() #unprocesed list of queries
         
     return query_text
+
 
 
 #tokenize text--------------------------------------------------------TOKENIZE TEXT STRING(QUERIES ONLY)
@@ -295,10 +293,11 @@ def text_tokenizer(text):
         #add stemmed token to query list
         stemmed_tokens.append(token_porter) 
     
-    return stemmed_tokens
+    return stemmed_tokens #list of stemmed tokens
 
 
-#prep query (convert to list of queries)------------------------------PREP QUERY 
+
+#prep query (convert to list of queries)------------------------------READ FILE & RETURN {QEURY_NUM:TOKEN_LIST}) DICT
 def prep_query(query_path, query_dictionary=query_dict):
     query_text = read_query_doc(query_path)
 
@@ -310,11 +309,11 @@ def prep_query(query_path, query_dictionary=query_dict):
         #add num : stemmed and tokenized query string (as a list of stemmed tokens) to dictionary
         query_dictionary.__setitem__(num, text_tokenizer(query_string))
     
-    return query_dictionary
+    return query_dictionary #i.e {query_number:list_of_stemmed_tokens}
 
 
 
-#compute tfidf for current query (as a list of tokens)----------------TFIDF OF QUERY
+#compute tfidf for current query (as a list of tokens)----------------GET TFIDF OF A QUERY LIST
 def get_query_tfidf(query_list):
 
     query_vector=[]
@@ -323,7 +322,7 @@ def get_query_tfidf(query_list):
     for token in query_list:
            
         #count token use in query-----------
-        tokenCounter = Counter(query_list) #counter magic
+        tokenCounter = Counter(query_list) #counter magic makes this easy
         count = tokenCounter[token]
 
         #get tf for term used in query-----
@@ -333,34 +332,34 @@ def get_query_tfidf(query_list):
         query_idf = math.log(length_of_query/count)
         query_vector.append(query_tf * query_idf)
 
-    return query_vector
+    return query_vector #i.e. a list of tfidf values for the query
 
 
 
-
-#return cosine similarity between two 1D vectors (i.e. lists)---------COSINE SIMILARITY
+#return cosine similarity between two lists of tfidf values-----------GET COSINE SIMILARITY(OF QUERY TO A DOC)
 def cosine_sim(vec1, vec2):
 
+    #get normals-----------------------------
     norm1 = norm(vec1)
     norm2 = norm(vec2)
 
-    #check for division by zero!
+    #check for division by zero!-------------
     if norm1 == 0 or norm2 == 0:
         return 0
     else:        
-        return dot(vec1, vec2)/(norm(vec1) * norm(vec2))
+        return dot(vec1, vec2)/(norm(vec1) * norm(vec2)) #dot product
     
 
 
 #write query results to file-------------------------------------------WRITE RESULTS TO FILE
 def write_results(sorted_results_dict, output_file, num_results=10): 
 
-    num_results = min(len(sorted_results_dict), num_results) #stay within scope (ie don't try to write too many)
+    num_results = min(len(sorted_results_dict), num_results) #stay within scope (ie don't try to write too many!)
     rank = 1
    
     with open(output_file, 'a') as outfile:
 
-        for result in sorted_results_dict:
+        for result in sorted_results_dict: #sorted_results is a {cosine_sim:(query_num, docno)} dict
 
             cos_sim = result 
             info = sorted_results_dict[result]
@@ -373,12 +372,14 @@ def write_results(sorted_results_dict, output_file, num_results=10):
 
             rank +=1
             if rank > num_results:
-                break #quick fix to limit write out to specified range
+                break #quick fix to limit write out to a specified range
 
-#reset output file on startup-----------------------------------------CLEAR OUTPUT FILE
+
+
+#reset output file on startup-----------------------------------------CLEAR OUTPUT FILE (BEFORE NEW QUERIES SEARCH)
 def clear_ouput_file(output_file):
     with open(output_file, 'w') as outfile:
-        outfile.write('')
+        outfile.write('') #overwrite any results from previous run of program
 
 
 
@@ -400,12 +401,15 @@ if __name__ == '__main__':
     query_path = args.query_path
     output_path = args.output_path
 
-
+    #erase any previous results (ie from previous runs of program)-------CLEAR OLD RESULTS
     clear_ouput_file(output_path) #clean output file in prep. for new run through corpus/query list    
+
+    #user feedback-------------------------------------------------------USER FEEDBACK
     print("\nCrawling Corpus: \t" + collection)
    
 
 
+    #begin processing the collection---------------------------------------------------------------
     # Retrieve the names of all files to be indexed in folder ./ap89_collection_small of the current directory
     for dir_path, dir_names, file_names in os.walk(collection):
         allfiles = [os.path.join(dir_path, filename).replace("\\", "/") for filename in file_names if (filename != "readme" and filename != ".DS_Store")]
@@ -457,7 +461,7 @@ if __name__ == '__main__':
                     #add tokens/terms to set for count of distinct------
                     uniqueWordSet.add(token) 
 
-                    #stemming using porter ----------------------------- STEMMING (Porter) -> consider another stemmer
+                    #stemming using porter --------------------------------- STEMMING (Porter) -> consider another stemmer
                     token_porter = ps.stem(token) #stemmed using porter tokenizer
 
                     position_counter += 1 #position counter of token in current doc
@@ -465,10 +469,10 @@ if __name__ == '__main__':
                     token_id = add_token(token_porter) #add stemmed token to dict and get its key#
                     
                     
-                    #create tuple of term information------------------- TERM TUPLE CREATION
+                    #create tuple of term information----------------------- TERM TUPLE CREATION
                     tpl_term_info = (token_id, doc_index_key, position_counter)  #token key, doc key, term position in doc
 
-                    #add tuple of info to term_info index--------------- TERM INFO INDEX
+                    #add tuple of info to term_info index------------------- TERM INFO INDEX
                     add_term_info(token_porter, tpl_term_info)
 
 
@@ -484,10 +488,10 @@ if __name__ == '__main__':
     print("Reading Query: \t\t" + query_path)
 
 
-    #ready queries -------------------------------------------------
-    query_dict = prep_query(query_path) #read file and create dictionary of query# : stemmed and tokenized query list    
+    #ready queries ------------------------------------------------- PREPARE QUERY DICT
+    query_dict = prep_query(query_path) #read file and get {query_num:list_of_stemmed_tokens}    
 
-    #iterate through queries----------------------------------------
+    #iterate through queries---------------------------------------- FOR EACH QUERY
     for query_number in query_dict: 
         current_query = query_dict[query_number] #current query is a list of stemmed work tokens  
         
@@ -499,14 +503,15 @@ if __name__ == '__main__':
 
 
 
-        #iterate through corpus documents----------------------------
-        for doc in docNoIndex:  
+        #iterate through corpus documents---------------------------- FOR EACH DOC IN COLLECTION
+        for doc in docNoIndex:  #use the reverse index for fast lookups
 
-            doc_vector = [] #reset for each new document
+            doc_vector = [] #reset for each new document (for tfidf values)
 
+            #for token in query-------------------------------------- FOR EACH TOKEN IN QUERY
             for token in current_query:
 
-                #get termID------------------------------------------
+                #get termID------------------------------------------ 
                 term_id = get_token_id(token) #get the term id #  
                
                 #print(str(term_id) + "-> Token: " + token )  
@@ -515,7 +520,7 @@ if __name__ == '__main__':
                 term_freq = get_doc_tfidf(token, doc)
                 doc_vector.append(term_freq)
 
-
+            #get cosine similarity----------------------------------- COSINE SIMILARITY (QUERY TO DOCUMENT)
             cs = cosine_sim(query_vector, doc_vector)   
 
             result_tuple = (query_number,doc) 
@@ -525,8 +530,9 @@ if __name__ == '__main__':
         #results for a particular query-------------------------------
         results = dict(sorted(result_dictionary.items(), key=lambda item: item[0], reverse=True))
 
-        #write to file------------------------------------------------
+        #write to file------------------------------------------------ WRITE RESULTS TO FILE (FOR A SINGLE QUERY)
         write_results(results, output_path)
 
+    #user feedback---------------------------------------------------- DONE!
     print("\nRetrieval Complete!")
     print("Results written to: \t" + output_path)

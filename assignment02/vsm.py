@@ -382,7 +382,7 @@ def clear_ouput_file(output_file):
 if __name__ == '__main__':
     
 
-    #parse user input from command line------------------------------------ USER INPUT --> NOTE THE DEFAULTS HERE! 
+    #parse user input from command line------------------------------------------------------------- USER INPUT --> NOTE THE DEFAULTS HERE! 
     parser = argparse.ArgumentParser()
     parser.add_argument("-q", "--query", dest = "query_path", help="Enter Path to Query document (i.e. query_list.txt)" , default='query_list.txt')
     parser.add_argument("-o", "--ouput", dest = "output_path", help="Enter Path to Output document (i.e. results.txt", default='results.txt')

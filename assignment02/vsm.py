@@ -382,7 +382,7 @@ def clear_ouput_file(output_file):
 if __name__ == '__main__':
     
 
-    #parse user input from command line------------------------------------------------------------- USER INPUT --> NOTE THE DEFAULTS HERE! 
+    #parse user input from command line------------------------------------ USER INPUT --> NOTE THE DEFAULTS HERE! 
     parser = argparse.ArgumentParser()
     parser.add_argument("-q", "--query", dest = "query_path", help="Enter Path to Query document (i.e. query_list.txt)" , default='query_list.txt')
     parser.add_argument("-o", "--ouput", dest = "output_path", help="Enter Path to Output document (i.e. results.txt", default='results.txt')
@@ -393,35 +393,35 @@ if __name__ == '__main__':
     query_path = args.query_path
     output_path = args.output_path
 
-    #erase any previous results (ie from previous runs of program)------- CLEAR OLD RESULTS
+    #erase any previous results (ie from previous runs of program)--------- CLEAR OLD RESULTS
     clear_ouput_file(output_path) #clean output file in prep. for new run through corpus/query list    
 
-    #user feedback------------------------------------------------------- USER FEEDBACK
+    #user feedback--------------------------------------------------------- USER FEEDBACK
     print("\nCrawling Corpus: \t" + collection)
    
 
 
-    #begin processing the collection--------------------------------------------------------------- BEGIN PROCESSING CORPUS
+    #begin processing the collection---------------------------------------------------------------- BEGIN PROCESSING CORPUS
     # Retrieve the names of all files to be indexed in folder ./ap89_collection_small of the current directory
     for dir_path, dir_names, file_names in os.walk(collection):
         allfiles = [os.path.join(dir_path, filename).replace("\\", "/") for filename in file_names if (filename != "readme" and filename != ".DS_Store")]
 
 
-    #FOR EACH FILE IN COLLECTION-------------------------------------------------------------------- FOR EACH FILE
-    #-----------------------------------------------------------------------------------------------
+    #FOR EACH FILE IN COLLECTION------------------------------------------- FOR EACH FILE
+    #----------------------------------------------------------------------
     for file in allfiles: 
         with open(file, 'r', encoding='ISO-8859-1') as f:
             filedata = f.read()
             result = re.findall(doc_regex, filedata)  # Match the <DOC> tags and fetch documents
                        
-            #FOR EACH DOCUMENT IN FILE-------------------------------------------------------------- FOR EACH DOC NO
-            #---------------------------------------------------------------------------------------
+            #FOR EACH DOCUMENT IN FILE-------------------------------------- FOR EACH DOC NO
+            #---------------------------------------------------------------
             for document in result[0:]:
                 
                 # Retrieve contents of DOCNO tag
                 docno = re.findall(docno_regex, document)[0].replace("<DOCNO>", "").replace("</DOCNO>", "").strip()
                 
-                #add doc ID to doc index----------------------------------- INDEX DOC NUMBER  
+                #add doc ID to doc index------------------------------------ INDEX DOC NUMBER  
                 doc_index_key = add_document_number(docno) #add doc no
 
                 # Retrieve contents of TEXT tag----------------------------- TOKENIZE
@@ -446,7 +446,7 @@ if __name__ == '__main__':
 
                     #add to term index-------------------------------------- ADD STEM TO TERM INDEX (stopwords included)
 
-                    #add tokens/terms to set for count of distinct------
+                    #add tokens/terms to set for count of distinct----------
                     uniqueWordSet.add(token) 
 
                     #stemming using porter --------------------------------- STEMMING (Porter)
@@ -464,7 +464,7 @@ if __name__ == '__main__':
                     add_term_info(token_porter, tpl_term_info)
 
 
-                #store count of unique terms in a doc------------------------
+                #store count of unique terms in a doc-----------------------
                 add_doc_info(doc_index_key, (token_counter, len(uniqueWordSet)))
                 uniqueWordSet.clear()
 

@@ -209,7 +209,6 @@ def count_docs(term, index=termInfoIndex):
     return counter
 
 
-
 #get term tfidf--------------------------------------------------------GET TFIDF(FOR A DOC)
 def get_doc_tfidf(term, doc_no):
 
@@ -255,7 +254,6 @@ def get_doc_tfidf(term, doc_no):
     '''      
 
     return tfidf
-        
  
     
 #read query doc-------------------------------------------------------READ QUERY FILE
@@ -264,7 +262,6 @@ def read_query_doc(query_path):
         query_text = file.readlines() #unprocesed list of queries
         
     return query_text
-
 
 
 #tokenize text--------------------------------------------------------TOKENIZE TEXT STRING(QUERIES ONLY)
@@ -296,7 +293,6 @@ def text_tokenizer(text):
     return stemmed_tokens #list of stemmed tokens
 
 
-
 #prep query (convert to list of queries)------------------------------READ FILE & RETURN {QEURY_NUM:TOKEN_LIST}) DICT
 def prep_query(query_path, query_dictionary=query_dict):
     query_text = read_query_doc(query_path)
@@ -310,7 +306,6 @@ def prep_query(query_path, query_dictionary=query_dict):
         query_dictionary.__setitem__(num, text_tokenizer(query_string))
     
     return query_dictionary #i.e {query_number:list_of_stemmed_tokens}
-
 
 
 #compute tfidf for current query (as a list of tokens)----------------GET TFIDF OF A QUERY LIST
@@ -335,7 +330,6 @@ def get_query_tfidf(query_list):
     return query_vector #i.e. a list of tfidf values for the query
 
 
-
 #return cosine similarity between two lists of tfidf values-----------GET COSINE SIMILARITY(OF QUERY TO A DOC)
 def cosine_sim(vec1, vec2):
 
@@ -348,7 +342,6 @@ def cosine_sim(vec1, vec2):
         return 0
     else:        
         return dot(vec1, vec2)/(norm(vec1) * norm(vec2)) #dot product
-    
 
 
 #write query results to file-------------------------------------------WRITE RESULTS TO FILE
@@ -375,7 +368,6 @@ def write_results(sorted_results_dict, output_file, num_results=10):
                 break #quick fix to limit write out to a specified range
 
 
-
 #reset output file on startup-----------------------------------------CLEAR OUTPUT FILE (BEFORE NEW QUERIES SEARCH)
 def clear_ouput_file(output_file):
     with open(output_file, 'w') as outfile:
@@ -390,7 +382,7 @@ def clear_ouput_file(output_file):
 if __name__ == '__main__':
     
 
-    #parse user input from command line-------------------------------------------------------------USER INPUT --> NOTE THE DEFAULTS HERE! 
+    #parse user input from command line------------------------------------------------------------- USER INPUT --> NOTE THE DEFAULTS HERE! 
     parser = argparse.ArgumentParser()
     parser.add_argument("-q", "--query", dest = "query_path", help="Enter Path to Query document (i.e. query_list.txt)" , default='query_list.txt')
     parser.add_argument("-o", "--ouput", dest = "output_path", help="Enter Path to Output document (i.e. results.txt", default='results.txt')
@@ -401,15 +393,15 @@ if __name__ == '__main__':
     query_path = args.query_path
     output_path = args.output_path
 
-    #erase any previous results (ie from previous runs of program)-------CLEAR OLD RESULTS
+    #erase any previous results (ie from previous runs of program)------- CLEAR OLD RESULTS
     clear_ouput_file(output_path) #clean output file in prep. for new run through corpus/query list    
 
-    #user feedback-------------------------------------------------------USER FEEDBACK
+    #user feedback------------------------------------------------------- USER FEEDBACK
     print("\nCrawling Corpus: \t" + collection)
    
 
 
-    #begin processing the collection---------------------------------------------------------------
+    #begin processing the collection--------------------------------------------------------------- BEGIN PROCESSING CORPUS
     # Retrieve the names of all files to be indexed in folder ./ap89_collection_small of the current directory
     for dir_path, dir_names, file_names in os.walk(collection):
         allfiles = [os.path.join(dir_path, filename).replace("\\", "/") for filename in file_names if (filename != "readme" and filename != ".DS_Store")]
@@ -431,10 +423,6 @@ if __name__ == '__main__':
                 
                 #add doc ID to doc index----------------------------------- INDEX DOC NUMBER  
                 doc_index_key = add_document_number(docno) #add doc no
-
-                #lets index the filename also------------------------------ INDEX DOCUMENT FILE (using Doc Number as key)
-                #add_document(file, docno) #--->>> not used!!!
-
 
                 # Retrieve contents of TEXT tag----------------------------- TOKENIZE
                 text = "".join(re.findall(text_regex, document))\
@@ -461,8 +449,8 @@ if __name__ == '__main__':
                     #add tokens/terms to set for count of distinct------
                     uniqueWordSet.add(token) 
 
-                    #stemming using porter --------------------------------- STEMMING (Porter) -> consider another stemmer
-                    token_porter = ps.stem(token) #stemmed using porter tokenizer
+                    #stemming using porter --------------------------------- STEMMING (Porter)
+                    token_porter = ps.stem(token)
 
                     position_counter += 1 #position counter of token in current doc
                     token_counter += 1 #count total tokens/terms in current doc
@@ -482,8 +470,8 @@ if __name__ == '__main__':
 
  
 
-    #processing corpus complete-------------------------------------------------------------------------
-    #---------------------------------------------------------------------------------------------------
+    #processing corpus complete--------------------------------------------------------------------- PROCESSING CORPUS COMPLETE
+    #-----------------------------------------------------------------------------------------------
     print("Pre-processing: \tcomplete")
     print("Reading Query: \t\t" + query_path)
 
@@ -502,7 +490,6 @@ if __name__ == '__main__':
         query_vector = get_query_tfidf(current_query)
 
 
-
         #iterate through corpus documents---------------------------- FOR EACH DOC IN COLLECTION
         for doc in docNoIndex:  #use the reverse index for fast lookups
 
@@ -513,26 +500,27 @@ if __name__ == '__main__':
 
                 #get termID------------------------------------------ 
                 term_id = get_token_id(token) #get the term id #  
-               
-                #print(str(term_id) + "-> Token: " + token )  
 
                 #iterate through current queries tokens and add tfidf(from doc) to doc's vector---
                 term_freq = get_doc_tfidf(token, doc)
                 doc_vector.append(term_freq)
 
-            #get cosine similarity----------------------------------- COSINE SIMILARITY (QUERY TO DOCUMENT)
-            cs = cosine_sim(query_vector, doc_vector)   
 
+            #get cosine similarity----------------------------------- COSINE SIMILARITY (QUERY TO DOCUMENT)
+            cs = cosine_sim(query_vector, doc_vector) 
             result_tuple = (query_number,doc) 
-            result_dictionary.__setitem__(cs, result_tuple)   
+            result_dictionary.__setitem__(cs, result_tuple) #add to result dict
            
+
 
         #results for a particular query-------------------------------
         results = dict(sorted(result_dictionary.items(), key=lambda item: item[0], reverse=True))
 
-        #write to file------------------------------------------------ WRITE RESULTS TO FILE (FOR A SINGLE QUERY)
-        write_results(results, output_path)
+        #write to file------------------------------------------------ WRITE RESULTS TO FILE (FOR SINGLE QUERY)
+        write_results(results, output_path, 10) #limit resulst to top 10
 
-    #user feedback---------------------------------------------------- DONE!
+
+
+    #user feedback---------------------------------------------------------------------------------- DONE!
     print("\nRetrieval Complete!")
     print("Results written to: \t" + output_path)

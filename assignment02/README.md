@@ -15,30 +15,20 @@
      - Example: <query−number> Q0 <docno> <rank> <score> Exp  
 
 ### This assignment uses the following:  
-   - Input: query_list.txt  
-   - Output: ap89_small_results.txt  
-   - vsm.py: the main program  
-   - ap89_collection_small: directory of files containing documents tagged as follows:  
-     - '<DOC>'
-     - '<DOCNO>       </DOCNO>'
-     - <FILEID>      </FILEID>
-     - <FIRST>       </FIRST>
-     - <SECOND>      </SECOND>
-     - <HEAD>        </HEAD>
-     - <DATELINE>    </DATELINE>
-     - <TEXT>        </TEXT>
-     - </DOC>
-
+   - query_list.txt (input)
+   - ap89_small_results.txt (output)
+   - vsm.py (the main program) 
+   - ap89_collection_small (directory of files containing documents tagged using the TREC collection format)  
+ 
 
 ### Language Used:  
 The assignment is implemented using the Python 3 language  
 
 ### Instructions:
-User input is collected via the use of flags and their associated arguments (see examples below)
+Program input and output are specified using command line flags and their associated arguments (see examples below)
 
 Note the following:
-   - a directory (relative to current) can be specified for saving indexed documents to disk (defaults to data/index/) using the -d (or --dir) flag
-   - a specific corpus can be specified using the -c ) or --collection) flag to overide the default (i.e. ap89_collection_small)
+   - a different corpus can be specified using the -c ) or --collection) flag to overide the default (i.e. ap89_collection_small)
    - query_list.txt and results.txt are the defaults if -q and -o flags are ommited
 
 Example usage: 
@@ -47,5 +37,3 @@ Example usage:
    - python vsm.py -q query_list.txt -o results.txt -d data/index/
    - python vsm.py -q query_list.txt -o results.txt -d data/index/ -c ap89_collection_min
 
-
-### Extra Credit:

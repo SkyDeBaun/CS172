@@ -19,8 +19,8 @@
    - Output: ap89_small_results.txt  
    - vsm.py: the main program  
    - ap89_collection_small: directory of files containing documents tagged as follows:  
-     - <DOC>
-     - <DOCNO>       </DOCNO>
+     - '<DOC>'
+     - '<DOCNO>       </DOCNO>'
      - <FILEID>      </FILEID>
      - <FIRST>       </FIRST>
      - <SECOND>      </SECOND>

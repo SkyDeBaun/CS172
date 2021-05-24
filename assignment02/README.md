@@ -25,7 +25,7 @@
 
 ### This assignment produced the following:
   - ap89_min_results.txt --> output from querying ap89_collection_min (has only one file: ap890101.txt) 
-  - ap89_select_results.txt --> output from querying the ap89_collection_select (has first 10 from ap89_collection_small ))
+  - ap89_select_results.txt --> output from querying the ap89_collection_select (only first 10 files from ap89_collection_small)
   - ap89_small_results.txt --> output from querying ap89_collection_small
    
  

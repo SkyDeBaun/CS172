@@ -29,7 +29,7 @@ The assignment is implemented using the Python 3 language
 Program input and output are specified using command line flags and their associated arguments (see examples below)
 
 #### Note the following:
-   - a different corpus can be specified using the -c ) or --collection) flag to overide the default (i.e. ap89_collection_small)
+   - a different corpus can be specified using the -c (or --collection) flag to overide the default (i.e. ap89_collection_small)
    - query_list.txt and results.txt are the defaults if -q and -o flags are ommited
 
 ### Example usage: 

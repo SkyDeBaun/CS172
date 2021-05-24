@@ -45,3 +45,13 @@ Program input and output are specified using command line flags and their associ
    - python vsm.py -q query_list.txt -o results.txt     
    - python vsm.py -q query_list.txt -o results.txt -c ap89_collection_min  
 
+
+
+## NOTE:
+After extensive testing with ap89_collection_min and ap89_collection_select collections everything looked good and I thought I was ready for submission (aside from a few README updates)  
+
+Re-reading the instructions I realized I needed to produce results for the ap89_collection_small, which I knew to be a very slow process (and thus had avoided).
+
+Unfortunately it takes a very long time to run on my limited resource VM. After nearing completion prior to the deadline an error (division by zero) arose I had not seen in any of the prior tests. I ammended the suspect code and re-ran the program.
+
+As of this update.. it is still running (11:30 PM Sunday, 23 May 2021). If it does not complete in time the ap89_small_results.txt will be blanc or only paritally complete.

@@ -20,6 +20,9 @@
    - ap89_small_results.txt (output)
    - vsm.py (the main program) 
    - ap89_collection_small (directory of files containing documents tagged using the TREC collection format)  
+   - ap89_collection_select  (contains first half of the collection)
+   - ap89_collection_min  (a minimal selection for testing the program)
+   
  
 
 ### Language Used:  

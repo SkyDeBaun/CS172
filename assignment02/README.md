@@ -22,14 +22,10 @@
    - query_list.txt (input)   
    - vsm.py (the main program) 
    - ap89_collection_small (directory of files containing documents tagged using the SGML format)  
-   - ap89_collection_select  (contains first half of the collection)
-   - ap89_collection_min  (a minimal selection for testing the program)  
      
-
+  
 ### This assignment produced the following: OUTPUT  
-  - ap89_min_results.txt --> output from querying ap89_collection_min (has only one file: ap890101.txt) 
-  - ap89_select_results.txt --> output from querying the ap89_collection_select (only first 10 files from ap89_collection_small)
-  - ap89_small_results.txt --> output from querying ap89_collection_small  
+  - ap89_collection_small_results.txt  
    
   
 ### Language Used:  

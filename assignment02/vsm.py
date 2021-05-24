@@ -233,10 +233,19 @@ def get_doc_tfidf(term, doc_no):
 
     if doc_key > -1 and term_id > -1:
         term_count, positions = get_doc_term_info(term, term_id, doc_key)
-        term_frequency = term_count/terms_in_doc
 
-        idf = math.log(num_docs_in_corp/num_docs_with_term) + 1
-        tfidf = idf *term_frequency
+        #avoid div by zero!--------------------------
+        if terms_in_doc == 0:
+            term_frequency = 0
+        else:
+            term_frequency = term_count/terms_in_doc
+
+        if num_docs_with_term == 0:
+            idf = 1
+        else: 
+            idf = math.log(num_docs_in_corp/num_docs_with_term) + 1
+
+        tfidf = idf * term_frequency
   
     '''
     #debugging----------------------------------------   

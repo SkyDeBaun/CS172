@@ -4,15 +4,16 @@
 
 
 ### This assignment is a simplified Information Retrieval system that builds on Assignment 1 as follows:  
-   - It perform sa full retrieval of documents matching a set of queries (read from text file)  
+   - It performs a full retrieval of documents matching a set of queries (read from text file)  
    - It adds support for complex queries (more than 1 term) using the Vector Space Model  
-   - It uses Cosine Similarity to score and rank documents within the corpus  
+   - It uses Cosine Similarity to score and rank all documents within the corpus  
    
 
 ### Other information about this assignment:  
    - The set of queries is read from a text file  
    - After completion results are saved to a text file in the TREC Evaluation Code Format  
      - Example: <query−number> Q0 <docno> <rank> <score> Exp  
+     - Output is limited to top 10 documents for each query
 
 ### This assignment uses the following:  
    - query_list.txt (input)

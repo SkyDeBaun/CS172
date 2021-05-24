@@ -28,11 +28,11 @@ The assignment is implemented using the Python 3 language
 ### Instructions:
 Program input and output are specified using command line flags and their associated arguments (see examples below)
 
-Note the following:
+#### Note the following:
    - a different corpus can be specified using the -c ) or --collection) flag to overide the default (i.e. ap89_collection_small)
    - query_list.txt and results.txt are the defaults if -q and -o flags are ommited
 
-Example usage: 
+### Example usage: 
    - python vsm.py
    - python vsm.py -q query_list.txt -o results.txt     
    - python vsm.py -q query_list.txt -o results.txt -c ap89_collection_min  

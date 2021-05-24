@@ -1,24 +1,40 @@
-# CS172 - Assignment 2 (Retrieval)  
+# CS172 - Assignment 2 (Retrieval)   
 
-## Team: Sky DeBaun - Spring 2021
-
-
-### This assignment is a simplified Information Retrieval system that builds on Assignment 1
-   - This assignment uses the Vector Space Model to perform a full retrieval of matching documents from a corpus of documents (ap89_collection_small)
-
-### Indices:
-   - Term Index (termIndex): dictionary that maps terms/tokens with a unique id number
-   - Document Index (docNoIndex): dictionary that maps document names(DOCNO) to a unique id number
-
-### Other Details:
-   - 
+## Team: Sky DeBaun - Spring 2021  
 
 
-### Language Used:
-The assignment is implemented using the Python 3 language
+### This assignment is a simplified Information Retrieval system that builds on Assignment 1 as follows:  
+   - It perform sa full retrieval of documents matching a set of queries (read from text file)  
+   - It adds support for complex queries (more than 1 term) using the Vector Space Model  
+   - It uses Cosine Similarity to score and rank documents within the corpus  
+   
+
+### Other information about this assignment:  
+   - The set of queries is read from a text file  
+   - After completion results are saved to a text file in the TREC Evaluation Code Format  
+     - Example: <query−number> Q0 <docno> <rank> <score> Exp  
+
+### This assignment uses the following:  
+   - Input: query_list.txt  
+   - Output: ap89_small_results.txt  
+   - vsm.py: the main program  
+   - ap89_collection_small: directory of files containing documents tagged as follows:  
+     - <DOC>
+     - <DOCNO>       </DOCNO>
+     - <FILEID>      </FILEID>
+     - <FIRST>       </FIRST>
+     - <SECOND>      </SECOND>
+     - <HEAD>        </HEAD>
+     - <DATELINE>    </DATELINE>
+     - <TEXT>        </TEXT>
+     - </DOC>
+
+
+### Language Used:  
+The assignment is implemented using the Python 3 language  
 
 ### Instructions:
-User input is collected via the use of flags and associated arguments (see examples below)
+User input is collected via the use of flags and their associated arguments (see examples below)
 
 Note the following:
    - a directory (relative to current) can be specified for saving indexed documents to disk (defaults to data/index/) using the -d (or --dir) flag

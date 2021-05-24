@@ -225,9 +225,6 @@ def get_doc_tfidf(term, doc_no):
         terms_in_doc, unique = count_doc_terms(doc_key) 
 
     #get term count (for a given document)-----------
-    doc_key = get_doc_id(doc_no)
-
-
     num_docs_with_term = count_docs(stem)
     num_docs_in_corp = len(docNoIndex)
 

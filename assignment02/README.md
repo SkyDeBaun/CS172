@@ -16,12 +16,17 @@
      - Output is limited to top 10 documents for each query
 
 ### This assignment uses the following:  
-   - query_list.txt (input)
-   - ap89_small_results.txt (output)
+   - query_list.txt (input)   
    - vsm.py (the main program) 
    - ap89_collection_small (directory of files containing documents tagged using the TREC collection format)  
    - ap89_collection_select  (contains first half of the collection)
    - ap89_collection_min  (a minimal selection for testing the program)
+   
+
+### This assignment produced the following:
+  - ap89_min_results.txt --> output from querying ap89_collection_min (has only one file: ap890101.txt) 
+  - ap89_select_results.txt --> output from querying the ap89_collection_select (has first 10 from ap89_collection_small ))
+  - ap89_small_results.txt --> output from querying ap89_collection_small
    
  
 

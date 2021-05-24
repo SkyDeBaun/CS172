@@ -34,7 +34,6 @@ Note the following:
 
 Example usage: 
    - python vsm.py
-   - python vsm.py -q query_list.txt -o results.txt 
-   - python vsm.py -q query_list.txt -o results.txt -d data/index/
-   - python vsm.py -q query_list.txt -o results.txt -d data/index/ -c ap89_collection_min
+   - python vsm.py -q query_list.txt -o results.txt     
+   - python vsm.py -q query_list.txt -o results.txt -c ap89_collection_min  
 

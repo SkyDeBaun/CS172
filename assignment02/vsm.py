@@ -222,7 +222,7 @@ def get_doc_tfidf(term, doc_no):
     #get document info (it total terms in doc)-------
     doc_key = get_doc_id(doc_no)
     if doc_key != -1:
-        terms_in_doc, unique = count_doc_terms(doc_key) 
+        terms_in_doc, unique = count_doc_terms(doc_key) #UNIQUE NOT USED HERE
 
     #get term count (for a given document)-----------
     num_docs_with_term = count_docs(stem)
@@ -231,17 +231,23 @@ def get_doc_tfidf(term, doc_no):
     if doc_key > -1 and term_id > -1:
         term_count, positions = get_doc_term_info(term, term_id, doc_key)
 
-        #avoid div by zero!--------------------------
-        if terms_in_doc == 0:
+        #get the term frequency---------------------- BEWARE DIV BY ZERO!
+        
+        #NOTE: since new query terms are added to the index, this may produce
+        # terms_ in_ doc == 0 (in some rare instances)         
+        if terms_in_doc == 0: 
             term_frequency = 0
         else:
             term_frequency = term_count/terms_in_doc
-
+            
+        #get idf------------------------------------- BEWARE DIV BY ZERO!
+        #NOTE: this added just in case (but what should idf be then???)
         if num_docs_with_term == 0:
-            idf = 1
-        else: 
+            idf = 0 #give it the lowest possible score (no smoothing)
+        else:
             idf = math.log(num_docs_in_corp/num_docs_with_term) + 1
 
+        #calculate tfidf-----------------------------
         tfidf = idf * term_frequency
   
     '''

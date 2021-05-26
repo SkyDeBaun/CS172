@@ -243,7 +243,7 @@ def get_doc_tfidf(term, doc_no):
         #get idf------------------------------------- BEWARE DIV BY ZERO!
         #NOTE: this added just in case (but what should idf be then???)
         if num_docs_with_term == 0:
-            idf = 0 #give it the lowest possible score (no smoothing)
+            idf = 1 #give it the lowest possible score (with smoothing)
         else:
             idf = math.log(num_docs_in_corp/num_docs_with_term) + 1
 
